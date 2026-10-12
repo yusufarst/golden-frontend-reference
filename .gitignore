@@ -1,0 +1,7 @@
+# Local artefacts that are never part of the public package
+__pycache__/
+*.pyc
+# output folder used in the smoke-test documentation (python tools/golden_consumer_smoke.py evidence/...)
+evidence/
+.DS_Store
+Thumbs.db

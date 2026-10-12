@@ -1,0 +1,588 @@
+/* =============================================================================
+   MULTIPLECORP design tokens, v1 (label f-system, 2026-10-06)
+
+   Source of truth:
+   - analysis/static-reference-analysis.md (section 6 draft v0, measured in sections 2-3)
+   - analysis/motion-analysis.md (section 4 proposals, section 4.6 draft token block)
+   - Owner decisions 2026-10-06 (binding): self-hosted Inter, text cut;
+     lime CTA #bdca88 on auth; grey text lifted only to WCAG AA; motion baseline 600 ms.
+
+   Evidence tags used in comments:
+     M1 = REF-M1 owner dashboard, M2 = REF-M2 login, M3 = REF-M3 create purchase
+     (1 image px = 1 CSS px at a 1448 x 1086 viewport).
+     "norm"  = normalised to the scale by the static analysis.
+     "aa"    = lightened/darkened only as far as WCAG 2.x AA (4.5 : 1) requires.
+     "f-sys" = re-measured by f-system on the reference WebPs (imgtool / profiles).
+     "prop"  = proposal: not visible in the static references.
+   Changes against the section 6 draft are marked "v1 change:".
+   ============================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     1. Typography
+     ------------------------------------------------------------------------- */
+  /* Inter variable, self-hosted (assets/fonts/inter, OFL-1.1). "Inter Fallback" is a
+     cap-height-matched Segoe UI face declared in base.css (limits layout shift). */
+  --font-sans: "Inter", "Inter Fallback", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-quote: "Inter", "Inter Fallback", "Segoe UI", sans-serif;      /* italic 400 (C17) */
+  --font-quote-serif: Georgia, "Times New Roman", serif;                /* optional M1 look */
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace; /* keycaps (M3) */
+  --font-variation-text: "opsz" 14;   /* text cut at every size; base.css also sets font-optical-sizing: none */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Shared app scale (static analysis 3.2). size / line-height / tracking */
+  --text-display-size: calc(44 * var(--tu));    --text-display-lh: calc(50 * var(--tu));    --text-display-track: -0.02em;  /* M2 headline 43.5 */
+  --text-title-size: calc(32 * var(--tu));      --text-title-lh: calc(40 * var(--tu));      --text-title-track: -0.02em;    /* M1 h1 / M3 title, cap 23.9-24.0 */
+  --text-figure-xl-size: calc(28 * var(--tu));  --text-figure-xl-lh: calc(36 * var(--tu));  --text-figure-xl-track: -0.02em; /* M1 Umur figure */
+  --text-figure-lg-size: calc(22 * var(--tu));  --text-figure-lg-lh: calc(28 * var(--tu));  --text-figure-lg-track: -0.01em; /* M1 KPI 21.7, M3 total 20.9 */
+  --text-heading-size: calc(20 * var(--tu));    --text-heading-lh: calc(28 * var(--tu));    --text-heading-track: -0.01em;  /* M1 20-21, M3 19 */
+  --text-heading-sm-size: calc(16.5 * var(--tu)); --text-heading-sm-lh: calc(20 * var(--tu)); --text-heading-sm-track: -0.03em; /* c-shared: M1 bottom-card titles (700),
+                                                                                              b-dash fit: cap 12 rows, ink 121 / 116 / 91 */
+  --text-heading-lg-size: calc(21 * var(--tu));  --text-heading-lg-lh: calc(28 * var(--tu));  --text-heading-lg-track: -0.01em; /* c-shared: M1 main card titles (700),
+                                                                                              "Tindakan hari ini" ink 164 (Inter 21: 166) */
+  --text-lead-size: calc(17 * var(--tu));       --text-lead-lh: calc(26 * var(--tu));                                        /* M2 lead 17.5, pitch 26.4 */
+  --text-body-lg-size: calc(15 * var(--tu));    --text-body-lg-lh: calc(22 * var(--tu));    --text-body-lg-lh-para: calc(24 * var(--tu));    /* M3 subtitle 15.5, M1 nav 15 */
+  --text-body-size: calc(14 * var(--tu));       --text-body-lh: calc(20 * var(--tu));                                        /* M1 body, M3 values */
+  --text-label-size: calc(13 * var(--tu));      --text-label-lh: calc(18 * var(--tu));                                       /* M3 field label 12.9 by width */
+  --text-caption-size: 12px;    --text-caption-lh: 16px;                                     /* meta, badges */
+  --text-micro-size: 11px;      --text-micro-lh: 16px;                                       /* M1 small meta */
+  --numeric-figures: tabular-nums;                                                           /* money, KPI, table numbers */
+
+  /* Auth scale (M2 sits about one step up the same scale; measured sizes kept for fidelity). */
+  --text-auth-title-size: calc(35 * var(--tu));   --text-auth-title-lh: calc(42 * var(--tu));   /* M2 form title 34.6 (cap 25.3) */
+  --text-auth-lead-size: calc(17.5 * var(--tu));  --text-auth-lead-lh: calc(26.5 * var(--tu));  /* M2 subtitle 17.5 / 26.4-26.9 */
+  --text-auth-label-size: calc(16 * var(--tu));   --text-auth-label-lh: calc(22 * var(--tu));   /* M2 field label 16.2, 600 */
+  --text-auth-input-size: calc(15.5 * var(--tu));                               /* M2 placeholder 15.7 */
+  --text-auth-button-size: calc(18 * var(--tu));                                /* M2 CTA 18.6 by cap, 17.7 by width */
+  --text-auth-helper-size: calc(15 * var(--tu));  --text-auth-helper-lh: calc(24 * var(--tu));  /* M2 helper 14.8 / 24.4 */
+  --text-toggle-size: calc(15 * var(--tu));                                     /* M2 ID/EN 15.4, 600 */
+
+  /* Component text roles (f-sys: matched to reference INK WIDTHS on the specimen; M1/M3 small text is
+     rendered ~8-15 % narrower than Inter at its cap height (static analysis 8.2), so sizes are chosen to
+     hold the silhouette and padding balance while staying within ~0.5-1 px of the cap height). */
+  --text-btn-sm-size: calc(13 * var(--tu));       /* 32 px buttons: M1 "Lihat Piutang" 77 px ink (13 px = 81), M3 "Gunakan data dari" 110 (113) */
+  --text-btn-md-size: calc(14 * var(--tu));       /* 36 px buttons */
+  --text-btn-lg-size: calc(14 * var(--tu));       /* 40 px buttons: M3 "Tambah barang" 105 px ink (14 px = 104); analysis cap 15 */
+  --text-btn-header-size: calc(14 * var(--tu));   /* f-verify add: 42 px top-bar buttons. "Pintasan" ink 57 (M1) / 58 (M3): 14 px / 600 = 58,
+                                     15 px = 61-62. "Oktober 2026" 88-89 (narrow numerals): 14 px = 94, 15 px = 100 */
+  --text-pill-sm-size: 11px;      /* f-verify add: M1 list pills ("Berjalan", "Dalam proses", "Jatuh tempo"), cap ~8 px,
+                                     22-23 px tall; ink is ~20 % narrower than Inter, so 11 px is the smallest legible fit */
+  --text-pill-xs-size: 10.5px;    /* c-shared add (wf3 P9): the 02 list pills as shipped to match REF-M1 ink widths
+                                     ("Jatuh tempo" 83 x 22). Below the 11 px micro floor: owner decision pending */
+  --text-btn-secondary-size: calc(12.5 * var(--tu));/* M3 footer outline labels at 500: "Batal" 30 (12.5 px = 29), "Simpan sebagai draf" 121 (122) */
+  --text-input-sm-size: 12px;     /* M1 32 px select "Dalam jutaan (Rp)" 97 px ink (12 px = 99) */
+  --text-input-size: calc(14 * var(--tu));        /* M3 field value "08 Okt 2026" 81 px ink (14 px = 82) */
+  --text-field-label-size: calc(13 * var(--tu));  /* M3 "Tanggal pembelian" 116 px ink (13 px = 115) */
+  --text-pill-size: 12px;         /* 24 px status pill, 500 */
+  --text-pill-lg-size: calc(13 * var(--tu));      /* M3 "Aktif" 28 px ink (13 px / 600 = 29) */
+  --text-delta-size: 12px;        /* M1 "+12%" 31 px ink (12 px / 600 = 31) */
+  --text-kbd-size: calc(12.5 * var(--tu));        /* M3 "Alt" 21 x 9 ink (Consolas 12.5 = 21 x 9) */
+  --text-heading-md-size: calc(20 * var(--tu)); --text-heading-md-lh: calc(26 * var(--tu)); --text-heading-md-track: -0.04em; /* c-shared: M3 card titles at 600, the
+                                  x-purchase fit on cap height AND ink (REF cap ~15; "Barang yang dibeli" 347-510, "Informasi
+                                  Pembelian" 343-522 vs REF 521). Was 18.5 / 0 (ink width only, cap 1.5 px short). */
+  --text-btn-outline-xl-size: calc(17 * var(--tu));  /* c-shared: M2 Google outline button (was borrowed from --text-heading-sm-size) */
+
+  /* ---------------------------------------------------------------------------
+     2. Spacing (4 px base, 2 px half-step), static analysis 3.3
+     ------------------------------------------------------------------------- */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-18: 72px;
+
+  /* ---------------------------------------------------------------------------
+     3. Layout
+     ------------------------------------------------------------------------- */
+  --sidebar-width: 264px;              /* norm: M1 262 / M3 268, incl. 1 px edge */
+  --sidebar-inset-x: 16px;
+  --nav-item-height: 44px;             /* norm: 45 / 46 */
+  --nav-item-gap: 6px;                 /* keeps the measured 50 px pitch */
+  --nav-icon-inset: 12px;
+  --nav-icon-label-gap: 20px;
+  --nav-indicator-width: 3px;
+  --nav-indicator-inset-y: 8px;
+  --header-height: 76px;               /* M1, M3 */
+  --header-control-top: 18px;          /* M1, M3: controls at y 18-59 */
+  --page-gutter: 16px;
+  --grid-gap: 12px;                    /* norm: M1 7-13, M3 11-17 */
+  --card-padding: 20px;                /* norm: 16-22 */
+  --card-header-icon-gap: 12px;
+  --search-max-width: 592px;
+  --footer-height: 64px;               /* M3 63 */
+  --auth-card-width: 1336px;           /* M2 */
+  --auth-split: 13fr 11fr;             /* M2 723.7 : 612.4 */
+  --auth-form-width: 487px;            /* M2 form column */
+  --auth-visual-inset: 48px;
+
+  /* ---------------------------------------------------------------------------
+     4. Radius (control radius ~0.18 x height), static analysis 3.5
+     ------------------------------------------------------------------------- */
+  --radius-xs: 4px;                    /* keycaps (M3 3-4), 17 px badge squares */
+  --radius-sm: 6px;                    /* 32-36 px controls (M3 fields 6-7 outer, M1 row buttons 5-6) */
+  --radius-md: 8px;                    /* 40-42 px controls (M3 primary 7.8-7.9, Tambah 6.6-7.8), tiles */
+  --radius-lg: 10px;                   /* cards (27 corners ~9.5), nav pill, 56 px auth controls (M2 10.6-11.1) */
+  --radius-xl: 12px;                   /* auth card (M2 13) */
+  --radius-full: 9999px;
+
+  /* ---------------------------------------------------------------------------
+     5. Control heights, static analysis 3.7
+     ------------------------------------------------------------------------- */
+  --control-xs: 24px;                  /* chevron buttons, pills, delta badges */
+  --control-sm: 32px;                  /* in-card buttons/selects (M1 32-33, M3 Gunakan 32) */
+  --control-md: 36px;                  /* form fields, table controls (M3 36) */
+  --control-lg: 40px;                  /* page actions, footer, toolbar search (M3 40; Tambah 41) */
+  --control-header: 42px;              /* v1 add: top-bar controls measured 42 in M1 and M3 (draft norm 40) */
+  --control-xl: 56px;                  /* auth buttons (M2 CTA 56.5 incl. band, Google 57) */
+  --control-xl-field: 55px;            /* v1 add: auth fields measured 55 (email 411-465, password 523-577) */
+  --control-add-row: 28px;             /* M3 "Tambah baris" 27 */
+  --stepper-disc: 30px;                /* M3 29 / 31 */
+  --stepper-disc-bg: #f3f4f5;          /* upcoming marker (r10 shared .mc-stepper) */
+  --stepper-ring: #d0d0d2;
+  --stepper-line: #d9d9db;             /* connector; done / current use --brand-step-done-* */
+  --badge-height: 24px;                /* status pill (C21: median 24) */
+  --badge-height-lg: 28px;             /* v1 add: M3 project status "Aktif" 27.5 (f-sys) */
+  --badge-height-sm: 22px;             /* f-verify add: M1 list pills 22-23 (Jatuh tempo 476-498, Berjalan 871-894) */
+  --badge-dot: 8px;                    /* M1 8-9 */
+  --badge-dot-lg: 9px;                 /* M3 9 (f-sys) */
+  --keycap-height: 22px;               /* M3 "Alt" / "N" 22-23 (f-sys) */
+  --keycap-min-width: 23px;            /* M3 "N" 23 wide (f-sys) */
+
+  /* ---------------------------------------------------------------------------
+     6. Icons (outline, round caps/joins, 24-unit grid; box sizes, glyph ink ~0.83 x box)
+     ------------------------------------------------------------------------- */
+  --icon-lg: 24px;                     /* box; glyph ink ~20 (nav, card headers) */
+  --icon-md: 20px;                     /* box; ink ~16-17 (fields, buttons) */
+  --icon-sm: 16px;
+  --icon-xs: 12px;
+  --icon-stroke: 1.75;                 /* rendered px at 20-24 px boxes (M1 1.75-1.9) */
+  --icon-stroke-sm: 1.5;               /* rendered px at 16-20 px boxes (M3 fields 1.5-1.65) */
+  --icon-stroke-xs: 1.25;              /* rendered px at 12-14 px boxes (meta lines) */
+  --icon-stroke-lg: 2;                 /* rendered px at 28-32 px boxes (M3 card-title glyphs 2.0-2.5) */
+  --icon-disc-lg: 56px;                /* M2 feature disc 55.5 */
+  --icon-disc-kpi: 52px;               /* v1 add: M1 KPI disc measured 52 (f-sys 289.8-341.2 / 222.5-274.5) */
+  --icon-disc-row: 42px;               /* v1 add: M1 Tindakan row disc 42-43 */
+  --icon-disc-md: 40px;
+  --icon-disc-sm: 32px;                /* M1 activity disc 33 */
+  --icon-button-round: 24px;           /* M1 chevron buttons 24-25 */
+
+  /* ---------------------------------------------------------------------------
+     7. Neutrals
+     ------------------------------------------------------------------------- */
+  --color-canvas: #f7f8f3;             /* M2, M3 (M1 #f6f6f2) */
+  --color-surface: #ffffff;            /* renders #fefefe */
+  --color-surface-sunken: #f2f3ee;     /* M3 table header, filled chevrons */
+  --color-surface-warm: #fdfcf4;       /* M3 summary */
+  --color-surface-hero-start: #f1f1ef; /* M1 hero */
+  --color-surface-hero-end: #f3f5f5;
+  --color-border-subtle: #f0f1ef;      /* cards, dividers (M3 Informasi edge #f1f1f1, f-sys) */
+  --color-border: #e4e4e2;             /* inputs, selects (M2 #e5e5e5, M3 #e4e4e4) */
+  --color-border-strong: #d8d8d6;      /* outline buttons (M3 #d5d5d5-#dadada) */
+  --color-border-control: #e0e0de;     /* v1 add: 32 px outline buttons (f-sys peaks: M1 Lihat #dedede-#e0e0e0, M3 Gunakan #e0e0e0-#e8e8e8) */
+  --color-border-toggle: #e8e8e8;      /* M2 ID/EN toggle */
+  --color-border-kbd: #e7e7e7;         /* M3 keycaps (f-sys #eaeaea-#f2f2f2 antialiased) */
+  --color-border-dashed: #e7e7e7;      /* 3 on / 2 off (M3) */
+  --color-header-divider: #ecedec;     /* M3 */
+  --color-addon-divider: #efefef;      /* v1 add: M3 date / ref field icon cell divider (f-sys #efefef) */
+  --color-separator: #c6c6c4;          /* M1 top-bar vertical separator */
+  --color-link-underline: #c9cacd;     /* c-shared: neutral link underline, M1 "Laporan piutang" / "Lihat semua" #c4c6ca-#d7d7d7
+                                          (was --color-border-strong #d8d8d6 on .mc-link, #c9cacd on the 02 copy) */
+  --color-avatar: #dfe1e3;             /* M1 #dee0e2, M3 #e0e2e4 */
+
+  /* Control border greys per role (c-shared, wf3 P20). The references draw 1 px control borders
+     with a soft halo; each crisp value below matches its role's integrated weight in the
+     reference that defines it, so the roles differ on purpose (fidelity). --color-border stays
+     the default field / header-control border, --color-border-control the 32-42 px outline
+     buttons and header selects, --color-border-strong the 36-40 px outline buttons. */
+  --color-border-field: #dededc;       /* M3 36 px form fields (REF halo integrates ~40 vs 27 for #e4e4e2) */
+  --color-border-field-dense: #d7d7d5; /* M3 table-cell controls (~57) */
+  --color-border-field-xl: #d9d9d7;    /* M2 auth fields (2-row band, 1.5x #e4e4e2) */
+  --color-border-outline-xl: #cdcec9;  /* M2 auth outline button (Google; 1 row integrates 50) */
+  --color-border-icon-btn: #e3e3e2;    /* M3 table trash button (2 px #eeeeee-#f0f0f0 halo, ~30) */
+  --color-divider-label: #dcdcdb;      /* M2 labelled divider lines (2-row band 235 / 241) */
+  /* Hover borders (prop: no state is drawn in the references) */
+  --color-border-hover: #d6d6d4;       /* default fields, OTP cells */
+  --color-border-field-hover: #c8c8c6; /* M3 form fields and table controls (darker rest value) */
+  --color-border-control-hover: #cfcfcd; /* outline buttons, KPI chevron */
+  --color-border-outline-xl-hover: #bebfba;
+  --color-card-hover-border: #e3e4df;  /* card with a stretched link: hover */
+  --color-card-press-border: #dcddd7;  /* ... press */
+  /* Row tints (prop; c-shared, wf3 P13): one pair for list rows, menu items and demo rows on
+     every page. Muted text on a tinted row switches to muted-tint (AA table below). The shell
+     nav keeps its own lime-family tints (--shell-nav-hover / -press): nav pills are not rows. */
+  --color-row-hover: #f8f9f4;
+  --color-row-press: #f2f3ec;
+  --color-sunken-hover: #e9eae4;       /* sunken buttons / chevrons: hover */
+
+  /* Text tiers. Owner decision 3: mockup greys lifted ONLY to AA, same hue, as light as AA allows.
+     Ratios are WCAG 2.x against the named background. */
+  --color-text-primary: #0f1014;       /* 19.0 : 1 on white */
+  --color-text-strong: #3a3b42;        /* 11.2 : 1 (current breadcrumb, links) */
+  --color-text-secondary: #55565c;     /* 7.3 : 1 white, 6.9 canvas. M1 cluster 1, unchanged */
+  --color-text-tertiary: #6b6d73;      /* 5.2 : 1 white, 4.85 canvas, 4.57 hero. M3 measured, unchanged */
+  --color-text-muted: #75767a;         /* aa, v1 change: lightest same-hue AA on WHITE (4.54 : 1).
+                                          Replaces M1 clusters 3-4 #7d7e82-#a2a3a5, M2 #767a80-#818286,
+                                          M3 meta #8b8d93 when they sit on white surfaces. */
+  --color-text-muted-canvas: #717276;  /* aa, v1 add: lightest same-hue AA on CANVAS #f7f8f3 (4.50 : 1) */
+  --color-text-muted-tint: #6d6e72;    /* aa, v1 add: lightest AA on tinted panels down to #f1f1ef / #eef3f8
+                                          (M1 hero, M2 sky panel; 4.50-4.56 : 1) */
+  --color-text-tertiary-lime: #696b71; /* aa, c-shared add: meta on a selected lime-150 row (palette); tertiary
+                                          #6b6d73 is 4.45 there, this is the lightest same-hue AA step (4.59 : 1) */
+  /* Which light grey on which surface (f-verify, WCAG 2.x, 4.5 : 1 for normal text):
+       white #ffffff ......................... muted 4.54 (tertiary 5.17)
+       warm #fdfcf4 (M3 summary) ............. muted FAILS 4.41 -> muted-canvas 4.67
+       canvas #f7f8f3 ........................ muted FAILS 4.25 -> muted-canvas 4.50
+       lime-50 #f5f9df (attention badge) ..... muted FAILS 4.21 -> muted-tint 4.73
+       sunken #f2f3ee (table header, chips) .. muted FAILS 4.07, muted-canvas FAILS 4.31 -> muted-tint 4.57
+       row hover #f8f9f4 / press #f2f3ec ..... muted FAILS 4.29 / 4.07 -> muted-tint 4.81 / 4.56 (c-shared)
+       lime-150 #ecf1d2 (selected row) ....... tertiary FAILS 4.45 -> tertiary-lime 4.59 (c-shared)
+       hero / sky panels (M1 #eff2f1, M2 #ecf2f7 behind the lead copy) -> muted-tint 4.51-4.52
+       anything darker than #ecf2f7 (e.g. the M2 sky top #e8f0f8) -> secondary #55565c (tertiary fails there: 4.49)
+     Do not put any of these greys on top of a photo; use a solid panel behind the text. */
+  --color-text-placeholder: #75767a;   /* aa, v1 change: M2 #98999d, M3 #9b9da1, M1 #83848a -> 4.54 : 1 on white inputs
+                                          (draft #74767c was 1 level darker than needed) */
+  --color-text-disabled: #9b9da1;      /* 2.7 : 1, decorative / disabled only */
+  --color-text-on-primary: #ffffff;    /* 9.4 : 1 on #1a5035 */
+  --color-text-on-lime: #0d0e00;       /* 17.2 : 1 on lime-100; 11 : 1 on lime CTA */
+  --color-icon-field: #262626;         /* v1 add: M3 field glyphs #0f1110-#262626 (f-sys) */
+
+  /* ---------------------------------------------------------------------------
+     8. Brand
+     ------------------------------------------------------------------------- */
+  /* Brand aliases (r7): the values live in PROJECT BRAND TOKENS (--brand-*, below). */
+  --color-primary: var(--brand-primary);              /* M3 primary button (#1a5035) */
+  --color-primary-rim: var(--brand-primary-rim);      /* 1 px darker rim on the M3 primary */
+  --color-primary-hover: var(--brand-primary-hover);  /* prop: hover, ~6 % darker */
+  --color-primary-press: var(--brand-primary-press);  /* prop */
+  --color-primary-deep: var(--brand-primary-deep);    /* totals, money emphasis (M3) */
+  --color-accent-olive: var(--brand-accent);          /* nav indicator (M3) 7.0 : 1 */
+  --color-accent-ink: var(--brand-accent-strong);     /* M2 "Tampilkan" link 11.3 : 1 */
+  --color-accent-link: var(--brand-accent-link);      /* M2 "Lupa kata sandi?" 7.8 : 1 */
+  --color-accent-underline: var(--brand-accent-soft); /* M2 olive underline / rule */
+  --color-lime-50: var(--brand-tint-50);              /* M1 attention badge */
+  --color-lime-100: var(--brand-tint-100);            /* M3 "Tambah barang" */
+  --color-lime-100-hover: var(--brand-tint-100-hover);
+  --color-lime-150: var(--brand-tint-150);            /* selected nav (M3) */
+  --color-lime-200: var(--brand-tint-200);            /* selected segment (M2 toggle) */
+  --color-lime-700: var(--brand-on-tint);             /* icon on lime tint (M1) */
+  --color-lime-signal: var(--brand-signal);           /* current step only (M3) */
+  --color-lime-cta: var(--brand-cta);                 /* BINDING auth CTA (owner decision 2), M2 measured exactly */
+  --color-lime-cta-band: var(--brand-cta-band);       /* M2 2 px darker bottom band */
+  --color-lime-cta-hover: var(--brand-cta-hover);     /* prop */
+  --color-lime-cta-ink: var(--brand-cta-ink);         /* label on the CTA, 11.0 : 1 */
+  --color-logo-teal: #335f65;
+  --color-logo-olive: #84a64c;
+
+  /* ---------------------------------------------------------------------------
+     9. Status
+     ------------------------------------------------------------------------- */
+  --color-success-bg: #e3f4e9;   --color-success-fg: #236b49;   --color-success-dot: #319664;  /* M3 Aktif 5.6 : 1 */
+  --color-trend-up-bg: #edf8f1;  --color-trend-up-fg: #2d5e3e;                                 /* M1 delta 6.9 : 1 */
+  --color-warning-bg: #fff1e2;   --color-warning-fg: #8a4a0e;   --color-warning-dot: #d98a3d;  /* M1 K3 6.2 : 1 */
+  --color-pending-bg: #fef1d8;   --color-pending-fg: #7a5a22;   --color-pending-dot: #cb9d4e;  /* aa fg 5.7 : 1 */
+  --color-danger-bg: #fde7e8;    --color-danger-fg: #b4373f;    --color-danger-icon: #9b2e30;  /* 5.0 : 1 */
+  --color-danger-dot: #d0454c;
+  --color-required: #cf4747;     /* asterisk (M3 #d14d4d = 4.30 : 1 on white). f-verify change, aa: same hue,
+                                    lightest step that reaches 4.52 : 1 (the asterisk is meaningful text) */
+  --color-info-bg: #e2ecf4;      --color-info-fg: #0f2b4f;      --color-info-dot: #5b8db5;     /* 11.9 : 1 */
+  --color-neutral-bg: #f2f3ee;   --color-neutral-fg: #3a3b42;   --color-neutral-dot: #9b9da1;  /* 10.0 : 1 */
+
+  /* ---------------------------------------------------------------------------
+     10. Categorical tints (icon discs); glyph = same hue at L* 10-20
+     ------------------------------------------------------------------------- */
+  --tint-olive: #eaf0d9;    --tint-olive-ink: #1a2e0d;     /* f-sys disc means: M1 KPI #ecf0dc, row #ecf2d6, M2 #eaf0da */
+  --tint-blue: #e1ecf4;     --tint-blue-ink: #0f2b4f;      /* M1 row #e1ecf6, M2 #dfebf5 */
+  --tint-peach: #f6ede1;    --tint-peach-ink: #432817;     /* M2 #f5ece1 */
+  --tint-mint: #deefe9;     --tint-mint-ink: #032f11;
+  --tint-red: #fce8e6;      --tint-red-ink: #9b2e30;
+  --tint-lavender: #ede5fc; --tint-lavender-ink: #341d5d;
+  --tint-tan: #f1e6dc;      --tint-tan-ink: #432817;
+  --tint-blue-strong: #d5e7f3;   /* v1 add: M1 KPI "Kas masuk" disc mean (f-sys); Tindakan rows / M2 use --tint-blue */
+  --tint-peach-strong: #faece0;  /* v1 add: M1 KPI "Piutang aktif" disc mean (f-sys) */
+  --tint-lime: #f5f9df;     --tint-lime-ink: #556a08;
+  --tint-neutral: #f2f3ee;  --tint-neutral-ink: #0f1014;
+
+  /* ---------------------------------------------------------------------------
+     11. Charts (M1 only)
+     ------------------------------------------------------------------------- */
+  --chart-age-1: #99b1a0;  /* sage: not yet due */
+  --chart-age-2: #edd798;  /* sand: 1-30 days */
+  --chart-age-3: #cbac8d;  /* tan: 31-60 days */
+  --chart-age-4: #d56e5b;  /* coral: 61-90 days */
+  --chart-age-5: #a9322e;  /* brick: over 90 days */
+  --chart-cat-1: #7e9e85;  /* sage */
+  --chart-cat-2: #82adc9;  /* steel blue */
+  --chart-cat-3: #e6d6c5;  /* beige */
+  --chart-cat-4: #dadee0;  /* grey */
+  --chart-progress-1: #94a469;  /* f-sys #94a468 */
+  --chart-progress-2: #89b3cd;
+  --chart-progress-3: #ccaf90;
+  --chart-track: #e6e8eb;       /* f-sys #e4e5e8-#e7e9ec */
+  --chart-olive-soft: #c5d1a3;  /* c-shared: soft olive bar (04 timing diagrams; was a literal x3) */
+  --chart-segment-gap: 2px;
+  --chart-line-width: 1.5px;
+  --chart-area-opacity-top: 0.4;
+  --chart-donut-ring-ratio: 0.16;
+  --progress-height: 10px;      /* M1 895-905 (f-sys) */
+
+  /* ---------------------------------------------------------------------------
+     12. Elevation
+     ------------------------------------------------------------------------- */
+  --shadow-xs: 0 1px 1px rgba(16, 24, 8, .04);                                      /* M3 controls: 1 darker row */
+  --shadow-card: 0 1px 3px rgba(20, 24, 16, .04);                                   /* M1, M3 cards */
+  /* c-shared: --shadow-pop and --shadow-raised now carry the REF-M2-measured values the login page
+     had scoped (wf3 P4 / P6): toggle ~12 levels 1-2 px under the border fading by 11 px; card
+     hairline -9 at top / bottom only plus a ~20 px fade peaking at -5..-7 (was a -14 ring, 12 px fade). */
+  --shadow-pop: 0 4px 12px rgba(16, 20, 10, .085);                                  /* M2 toggle; segmented, tab bars */
+  --shadow-raised: 0 -1px 0 rgba(40, 48, 20, .012), 0 1px 0 rgba(40, 48, 20, .012), 0 2px 26px 0 rgba(40, 48, 20, .068); /* M2 auth card */
+  --shadow-cta: 0 5px 14px var(--brand-cta-glow);                                   /* M2 lime CTA glow (brand) */
+  --shadow-footer: 0 -1px 0 #f5f5f5;                                                /* M3 sticky footer */
+  /* Overlay elevation (prop: no overlay is drawn in the references; values as shipped, c-shared wf3 P14) */
+  --shadow-card-hover: 0 2px 8px rgba(20, 24, 16, .05);                             /* card with a stretched link: hover */
+  --shadow-menu: 0 2px 8px rgba(0, 0, 0, .05), 0 12px 32px rgba(20, 24, 16, .08);   /* dropdown menus */
+  --shadow-toast: 0 8px 24px rgba(15, 16, 20, .10), 0 1px 2px rgba(15, 16, 20, .05);
+  --shadow-modal: 0 0 0 1px rgba(15, 16, 20, .05), 0 24px 48px rgba(15, 16, 20, .14), 0 2px 6px rgba(15, 16, 20, .05); /* dialog */
+  --shadow-drawer: -1px 0 0 rgba(15, 16, 20, .06), -24px 0 48px rgba(15, 16, 20, .12); /* right-hand drawer */
+  --shadow-palette: drop-shadow(0 18px 28px rgba(15, 16, 20, .16)) drop-shadow(0 2px 4px rgba(15, 16, 20, .06));
+                                       /* a filter value: it follows the palette's clip while it reveals */
+
+  /* ---------------------------------------------------------------------------
+     13. Focus (NOT observed in any reference; proposal, motion analysis 4.4 Feedback)
+     ------------------------------------------------------------------------- */
+  --color-focus: var(--brand-accent);                  /* accent olive, 7.0 : 1 on white (>= 3 : 1 non-text) */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring: 0 0 0 3px var(--brand-focus-halo);     /* halo for fields (focus-within) */
+  --focus-ring-danger: 0 0 0 3px rgba(180, 55, 63, .22); /* c-shared: halo for an invalid field (danger-fg at 22 %) */
+
+  /* ---------------------------------------------------------------------------
+     14. Motion (motion analysis 4.1 / 4.2 / 4.4 / 4.6; all PROPOSALS derived from
+         REF-V1 structure and REF-V2 measured timings; no camera or edit motion)
+     ------------------------------------------------------------------------- */
+  /* Durations */
+  --mc-dur-instant: 80ms;              /* press-in, hover tint in, overlay opacity-in (V2 50-83 ms) */
+  --mc-dur-fast: 160ms;                /* release, state morph, selection ring, chips (V2 ~160-180 ms) */
+  --mc-dur-base: 240ms;                /* item reveal, page exit, toast exit (V2 250-330 ms, shortened) */
+  --mc-dur-moderate: 320ms;            /* container transform, modal open, collapse, pop-in */
+  --mc-dur-slow: 400ms;                /* nav indicator, palette height, panel reveal, morph */
+  --mc-dur-auth-step: 600ms;           /* v1 change: owner decision 5 (V1 real-time ~600 ms, 565-690);
+                                          analysis 4.1 had proposed 480 ms */
+  --mc-dur-auth-signature: 600ms;      /* V1 desktop hand-off variant (same clock) */
+  --mc-dur-reduced: 150ms;             /* reduced-motion crossfade (4.5) */
+  --mc-dur-spin: 900ms;                /* spinner revolution (prop) */
+
+  /* Easings */
+  --mc-ease-standard: cubic-bezier(0.42, 0, 0.58, 1);  /* persistent moves: auth step, nav indicator, morph (V1 T1 fit) */
+  --mc-ease-enter: cubic-bezier(0, 0, 0.2, 1);         /* entrances (V2 container transform fit) */
+  --mc-ease-reveal: cubic-bezier(0.25, 1, 0.5, 1);     /* clip/size reveals: palette, side panel (V2 easeOutQuart) */
+  --mc-ease-exit: cubic-bezier(0.37, 0, 0.63, 1);      /* opacity-out (V2 easeInOutSine) */
+  --mc-ease-emphasis: cubic-bezier(0.34, 1.45, 0.64, 1); /* ONE highlighted datum per view only */
+  --mc-ease-linear: linear;                            /* scrim, progress, spinner */
+
+  /* Stagger */
+  --mc-stagger-tight: 30ms;            /* chips, toolbar items, chart bars */
+  --mc-stagger-row: 40ms;              /* table and list rows */
+  --mc-stagger-card: 60ms;             /* cards / containers */
+  --mc-stagger-max-steps: 8;           /* later items share step 8 */
+  --mc-stagger-window: 300ms;          /* total stagger budget */
+  --mc-content-offset: 120ms;          /* container -> its content */
+  --mc-page-budget: 900ms;             /* data-ready -> last entering element */
+
+  /* Distances and scales */
+  --mc-enter-scale: 0.97;              /* container / dialog enter (V2 0.96-0.975) */
+  --mc-exit-scale: 0.98;               /* dialog / auth card exit */
+  --mc-enter-rise: 8px;                /* container rise (V2 9-13 CSS px, compressed) */
+  --mc-title-rise: 6px;                /* page title rise (V2 ~6 CSS px) */
+  --mc-item-rise: 4px;                 /* item reveal (V2 3-6 CSS px) */
+  --mc-item-blur: 3px;                 /* text-level blur only, <= 3-4 px */
+  --mc-validation-rise: -4px;          /* inline message drops in from above */
+  --mc-press-scale: 0.97;              /* buttons 32-56 px (V2 0.93-0.96, reduced) */
+  --mc-pop-scale: 0.8;                 /* success check pop-in, no overshoot */
+  --mc-auth-shift: 24px;               /* auth content offset (V1 forms move on one clock) */
+  --mc-auth-parallax: 48px;            /* auth caption = 2 x content offset (V1 2x copy parallax) */
+  --mc-auth-swap-at: 0.5;              /* hidden midpoint swap at p = 0.5 */
+  --mc-auth-exit-end: 0.45;            /* content exit 0-45 %, hidden 45-55 %, enter 55-100 % */
+  --mc-auth-enter-start: 0.55;
+  --mc-panel-start: 3%;                /* side panel clip reveal starts at 3 % width */
+  --mc-scrim: rgba(15, 16, 20, 0.32);  /* modal / palette scrim */
+  --mc-backdrop-blur: 4px;             /* optional palette backdrop blur */
+}
+
+/* -----------------------------------------------------------------------------
+   Layers (r6): one z-index scale for every component. Fixed chrome < menus < drawers <
+   sheets < modals < toasts (feedback must stay readable over everything except the skip link).
+   --------------------------------------------------------------------------- */
+:root {
+  --z-raised: 2;                       /* sticky sidebar, card overlays */
+  --z-bar: 30;                         /* app bar, bottom navigation, sticky action bar */
+  --z-popover: 80;                     /* menus, listboxes, date popover, account menu */
+  --z-sheet: 90;                       /* bottom sheets */
+  --z-drawer: 95;                      /* navigation drawer */
+  --z-modal: 100;                      /* confirmation / information dialogs, palette */
+  --z-toast: 110;                      /* toasts */
+  --z-skip: 120;                       /* skip link */
+
+  /* Destructive action (r6): solid red only for the confirming button of a destructive or
+     session-ending action; white label 5.0 : 1. */
+  --color-danger-solid: #b4373f;
+  --color-danger-solid-hover: #9e2f36;
+  --color-danger-rim: #9b2e30;
+}
+
+/* -----------------------------------------------------------------------------
+   PROJECT BRAND TOKENS (r7). The only colours a project re-tints (project-config.js `tokens`).
+   Everything else in this file is a FIXED GOLDEN token: text, surfaces, borders, semantic
+   success / warning / danger / info, chart categories, KPI tones, shadows, motion, density.
+   Defaults = MultipleCorp. Component CSS never names a brand hex; it reads the --color-* aliases
+   below, which point here.
+   --------------------------------------------------------------------------- */
+:root {
+  --brand-primary: #1a5035;            /* primary button, money emphasis family */
+  --brand-primary-rim: #12452b;
+  --brand-primary-hover: #154530;
+  --brand-primary-press: #113c29;
+  --brand-primary-deep: #0e3b25;       /* totals */
+  --brand-accent: #545e21;             /* nav indicator, focus, accent controls (7.0 : 1) */
+  --brand-accent-strong: #353e1c;      /* accent text on light surfaces */
+  --brand-accent-link: #4c572c;        /* auth links */
+  --brand-accent-soft: #8b936d;        /* accent underline / rule */
+  --brand-tint-50: #f5f9df;            /* attention badge, selected preset, range fill */
+  --brand-tint-100: #f0f5ca;           /* accent button */
+  --brand-tint-100-hover: #e9f0b9;
+  --brand-tint-150: #ecf1d2;           /* selected navigation */
+  --brand-tint-200: #e4ebc2;           /* selected segment */
+  --brand-on-tint: #556a08;            /* icon on a tint */
+  --brand-signal: #bbdf06;             /* current step only */
+  --brand-nav-hover: #f6f9eb;          /* tint-150 at 45 % on white */
+  --brand-nav-press: #f0f4dc;          /* tint-150 at 80 % on white */
+  --brand-focus-halo: rgba(84, 94, 33, .35);
+  --brand-cta: #bdca88;                /* auth CTA (owner decision 2) */
+  --brand-cta-band: #b0ba7d;
+  --brand-cta-hover: #b5c37e;
+  --brand-cta-ink: #0b1005;            /* 11.0 : 1 on the CTA */
+  --brand-cta-glow: rgba(120, 140, 40, .28);
+  --brand-cta-shadow: rgba(108, 122, 52, .22);   /* auth CTA glow (greyer than -glow, REF-M2) */
+  --brand-cta-rim: #a9b676;            /* checked box filled with the CTA colour */
+  /* r7 residuals: brand-state colours that were raw hex in component CSS */
+  --brand-link-soft: #5a643c;          /* quiet text link (Login "Lupa kata sandi?", 6.3 : 1) */
+  --brand-link-strong: #3d4624;        /* strong inline text action (Login "Tampilkan", 9.6 : 1) */
+  --brand-link-rule: #969c71;          /* its underline */
+  --brand-fill-rule: #cfd6ad;          /* filled code cell border (OTP) */
+  --brand-fill-wash: #fbfcf6;          /* filled code cell background (OTP) */
+  --brand-progress: #a3b26a;           /* brand progress bar (Login handoff) */
+  --brand-step-done-line: #e4e9cb;     /* completed stepper connector (Create Purchase) */
+  --brand-step-done-dot: #dde7a6;      /* completed stepper dot */
+}
+
+/* =============================================================================
+   Responsive tokens (Golden Reference r2: final polish + responsive mobile pass)
+   ONE token system for every width. Desktop (>= 1200 px) is the approved REF-M1/M2/M3
+   reconstruction and keeps every value above. Below it, only these tokens change.
+   Breakpoints (media queries cannot read custom properties, so the numbers are fixed):
+     desktop  >= 1200 px  reference composition (sidebar 264 + top bar 76)
+     tablet   768-1199 px icon rail (80) + top bar; cards reflow to 2 columns
+     phone    <= 767 px   app bar + bottom navigation; single column; 360 px minimum
+   ============================================================================= */
+:root {
+  /* Safe areas (notch, home indicator). 0 on desktop browsers. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  /* Touch + phone sizing */
+  --touch-min: 44px;                   /* minimum interactive target on touch */
+  --m-gutter: 18px;                    /* phone page gutter (20 from 375 px); r5: was 16 / 20 from 400 */
+  --m-section-gap: 28px;               /* between page sections */
+  --m-card-gap: 14px;                  /* between cards in one section */
+  --m-card-pad: 18px;                  /* restrained card padding (moderate, not oversized) */
+  --m-row-min: 60px;                   /* list / action row minimum height */
+  --m-control-h: 48px;                 /* field, custom select trigger, primary buttons */
+  --m-control-r: var(--radius-md);     /* 8: same radius family as the 40 px desktop controls */
+  --m-appbar-h: 56px;
+  --m-bottom-nav-h: 60px;
+  --m-action-bar-h: 72px;              /* sticky purchase actions (+ safe area) */
+
+  /* Phone type scale (Inter text cut; same weights as desktop) */
+  --m-text-title: 25px;     --m-text-title-lh: 31px;    /* page title (26 from 400 px) */
+  --m-text-heading: 18px;   --m-text-heading-lh: 24px;  /* section heading */
+  --m-text-row: 15px;       --m-text-row-lh: 20px;      /* card / row title */
+  --m-text-body: 15px;      --m-text-body-lh: 22px;
+  --m-text-meta: 12.5px;    --m-text-meta-lh: 17px;     /* metadata, captions */
+  --m-text-button: 15px;
+  --m-text-figure: 17px;    --m-text-figure-lh: 22px;   /* KPI values in the 2-column grid */
+  --m-text-total: 22px;                                 /* purchase grand total */
+
+  /* Custom select / listbox (desktop popover and phone sheet share these) */
+  --select-menu-pad: 8px;              /* menu inner padding (r5: 6 -> 8) */
+  --select-row-h: 42px;                /* desktop option row (r5: 40 -> 42) */
+  --select-row-px: 14px;               /* option text inset: 22 px from the menu border (r5; was 18, read as cramped) */
+  --select-row-r: var(--radius-sm);    /* highlight radius inside the 10 px menu */
+  --select-menu-r: var(--radius-lg);
+  --select-menu-max-h: 320px;
+  --select-sheet-row-h: 52px;          /* phone sheet option row */
+
+  /* Upload component */
+  --upload-success: var(--color-success-fg);            /* #236b49 established success green */
+  --upload-success-dot: var(--color-success-dot);       /* #319664 check stroke */
+  --upload-success-bg: var(--color-success-bg);         /* #e3f4e9 acknowledgement wash */
+  --mc-dur-check: 360ms;               /* success check stroke (300-400 ms brief) */
+  --mc-dur-hover: 140ms;               /* hover tint (120-180 ms brief) */
+  --mc-dur-state: 200ms;               /* component state change (180-240 ms brief) */
+  --mc-dur-sheet: 320ms;               /* bottom sheet in (= moderate) */
+  --mc-dur-auth-compact: 480ms;        /* single-column auth step swap (V1 principles, shorter travel) */
+}
+@media (min-width: 375px) {
+  :root { --m-gutter: 20px; }
+}
+@media (min-width: 400px) {
+  :root { --m-text-title: 26px; --m-text-title-lh: 32px; }
+}
+
+/* -----------------------------------------------------------------------------
+   Runtime density (r4, r6). The 1448 x 1086 references are COMPARISON canvases, not runtime
+   sizes: reference fidelity != fixed CSS pixel size.
+     --du  geometry unit, "one reference px at runtime" (density layer, components.css 24).
+           r4 curve: follows the viewport height (768 -> .86, 864 -> .905, 900 -> .92, >= 1068 -> 1)
+           and, below 1448 px, the width (1366 -> .93). r6 (owner review at browser zoom 100 %:
+           "the old build felt right near 90 %"): the curve is multiplied by --density-scale (.9 on
+           desktop), so 1366 x 768 -> .774, 1536 x 864 -> .815, 1920 x 1080 -> .9.
+     --dt  display-text unit (half the compression of --du)
+     --tu  type unit for every fixed text size above 12 px and line box above 16 px (r6). Desktop
+           .92 (1366) -> .96 (1920); text of 12 px and less never shrinks.
+     --iu  icon unit (r6): icons follow the type unit on desktop.
+   Phones keep 1px everywhere (touch targets and reading sizes are not compressed); tablets use
+   the r5 --du. The Login keeps its own fitted units (--lu / --lt, components.css Login 8).
+   Projects tune density through --density-scale only (docs/PORTABILITY_CONTRACT.md).
+   --------------------------------------------------------------------------- */
+:root { --du: 1px; --dt: 1px; --tu: 1px; --iu: 1px; --density-scale: 1; }
+@media (min-width: 1025px) {
+  :root {
+    --density-scale: .9;
+    --du: calc(clamp(.86px, min(calc(.86px + (100vh - 768px) * .00047), calc(.93px + (100vw - 1366px) * .0009)), 1px) * var(--density-scale));
+    --dt: calc(.5px + var(--du) * .5);
+    --tu: clamp(.92px, calc(.92px + (100vw - 1366px) * .00008), .96px);
+    --iu: var(--tu);
+  }
+  :root:has(> body[data-page="login"]) { --tu: 1px; --iu: 1px; }
+}
+/* Tablets (r5): the same unit, from the height only and capped at .94 (1024 x 768 -> .86,
+   768 x 1024 -> .94); applied to page headers, KPI tiles and Dashboard blocks. */
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root {
+    --du: clamp(.86px, calc(.86px + (100vh - 768px) * .00047), .94px);
+    --dt: calc(.5px + var(--du) * .5);
+  }
+}

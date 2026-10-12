@@ -1,0 +1,2456 @@
+/* =============================================================================
+   MULTIPLECORP Golden Reference: PAGE PATTERNS (r10, Layer A: Golden Design System)
+
+   The reusable page archetypes behind every module screen: list, detail / hub, list-detail,
+   form, task, checklist, document preview, report, settings, system. Built ONLY from the
+   tokens (tokens.css) and the primitives (components.css: .mc-card, .mc-btn, .mc-pill,
+   .mc-field, .mc-input, .mc-select, .mc-page-head, .mc-crumbs). No business content, no
+   project fixture: a page supplies the data, these rules supply the form.
+   Load after components.css and before motion.css:
+     <link rel="stylesheet" href="../assets/css/patterns.css">
+   JS counterpart: assets/js/patterns.js (MCUI, MCList, MCTabs, MCFilter, MCRisk, MCPage ...).
+   Catalogue: docs/COMPONENT_CATALOG.md.
+
+   Sections
+     1. Pattern tokens            8. Tabs (parts of a record)
+     2. Page stack + header row   9. Key facts / key-value / timeline / checklist
+     3. Section card             10. List-detail split + detail sheet (phone)
+     4. Toolbar (search, filters, company view)   11. Form layout + action bar
+     5. Data table (desktop)     12. Document paper + guide + composer
+     6. Row list (phone)         13. Notices, metrics, hub tiles, empty pages
+     7. States (skeleton, empty, error, permission, processing)
+                                 14. Phone + tablet adjustments
+   ============================================================================= */
+
+/* =============================================================================
+   1. Pattern tokens (derived from the system tokens; projects never edit these)
+   ============================================================================= */
+:root {
+  --pt-frame: #efefee;                       /* table frame = the purchase table (03) */
+  --pt-row-divider: #f1f1f0;
+  --pt-head-band: var(--color-surface-sunken);
+  --pt-head-rule: #ececea;
+  --pt-gap: 14px;                            /* between sections of one page */
+  --pt-row-h: 52px;                          /* table body row */
+  --pt-th-h: 40px;
+  --pt-cell-px: 16px;
+  --pt-title-size: var(--text-heading-sm-size);
+  --pt-title-lh: var(--text-heading-sm-lh);
+  --pt-title-track: var(--text-heading-sm-track);
+  --pt-action-h: 64px;                       /* sticky action bar (desktop) */
+}
+@media (min-width: 1025px) {
+  :root {
+    --pt-gap: calc(14 * var(--du));
+    --pt-row-h: max(46px, calc(54 * var(--du)));
+    --pt-th-h: max(36px, calc(40 * var(--du)));
+    --pt-cell-px: calc(16 * var(--du));
+    --pt-action-h: calc(64 * var(--du));
+  }
+}
+
+/* =============================================================================
+   2. Page stack + header row
+   The page header keeps the shared .mc-page-head (crumbs, title, subtitle). .pt-head adds the
+   title row with the page actions (right on desktop, below the title on phones) and an optional
+   meta line (record number, company, status) for detail pages.
+   ============================================================================= */
+.pt-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pt-gap);
+  margin-top: 13px;
+  min-width: 0;
+}
+@media (min-width: 1025px) { .pt-page { margin-top: calc(13 * var(--du)); } }
+
+.pt-head__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.pt-head__text { min-width: 0; }
+.pt-head__row .mc-page-head__title { overflow-wrap: anywhere; }
+.pt-head__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  padding-bottom: 2px;
+}
+.pt-head__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 6px;
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-lh);
+  color: var(--color-text-muted-canvas);
+}
+.pt-head__meta .pt-sep { color: var(--color-text-disabled); }
+.pt-num {                                    /* business numbers: tabular, never wrap mid-number */
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-text-strong);
+  font-weight: var(--weight-medium);
+}
+
+/* =============================================================================
+   3. Section card: text-first heading (no decorative icon), optional link / actions on the right.
+   ============================================================================= */
+.pt-section { padding: 0; overflow: hidden; }
+.pt-section__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: 12px var(--card-padding) 10px;
+}
+.pt-section__titles { min-width: 0; flex: 1 1 auto; }
+.pt-section__title {
+  margin: 0;
+  font-size: var(--pt-title-size);
+  line-height: var(--pt-title-lh);
+  letter-spacing: var(--pt-title-track);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+}
+.pt-section__sub {
+  margin: 2px 0 0;
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-lh);
+  color: var(--color-text-secondary);
+}
+.pt-section__actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; margin-left: auto; }
+.pt-section__body { padding: 0 var(--card-padding) var(--card-padding); }
+.pt-section__body--flush { padding: 0; }
+.pt-section__body--flush-x { padding-left: 0; padding-right: 0; }
+.pt-section__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px var(--card-padding);
+  border-top: 1px solid var(--pt-row-divider);
+  font-size: var(--text-label-size);
+  color: var(--color-text-secondary);
+}
+.pt-link {                                   /* quiet text link inside sections ("Lihat semua") */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 4px;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-strong);
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-decoration-color: var(--color-link-underline);
+  text-underline-offset: 4px;
+  white-space: nowrap;
+}
+.pt-link:hover { text-decoration-color: currentColor; }
+.pt-link .mc-icon { --icon-n: 16; --icon-stroke-px: 1.6; }
+
+.pt-grid-2 { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: var(--pt-gap); align-items: start; }
+.pt-grid-2--even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pt-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--pt-gap); align-items: start; }
+.pt-stack { display: flex; flex-direction: column; gap: var(--pt-gap); min-width: 0; }
+/* r10: column items never grow past their column. A field's min-content (input size + icons) made a
+   card 374 px wide inside a 350 px phone column (Akun Saya, once the web font loaded). */
+.pt-page > *, .pt-stack > * { min-width: 0; }
+
+/* =============================================================================
+   4. Toolbar: search + filters + company view ("Tampilkan: Semua perusahaan").
+   One row on desktop (wraps when needed); on phones the search takes the full width and the
+   filters scroll sideways in one row (never a second page of controls).
+   ============================================================================= */
+.pt-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+.pt-toolbar__search { flex: 1 1 260px; max-width: 420px; min-width: 0; }
+.pt-toolbar__search .mc-input { width: 100%; }
+.pt-toolbar__filters { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; min-width: 0; }
+.pt-toolbar__end { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+.pt-filter {                                 /* compact native select used as a filter */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-md);
+  min-width: 0;
+  max-width: 260px;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+  color: var(--color-text-primary);
+  transition: border-color var(--mc-dur-fast) var(--mc-ease-exit);
+}
+.pt-filter:hover { border-color: var(--color-border-control-hover); }
+.pt-filter:focus-within { border-color: var(--color-focus); box-shadow: 0 0 0 3px var(--brand-focus-halo, rgba(84, 94, 33, .25)); }
+.pt-filter__label {
+  padding-left: 12px;
+  font-size: var(--text-label-size);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.pt-filter select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 32px 0 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  cursor: pointer;
+  outline: none;
+}
+.pt-filter .mc-icon { --icon-n: 16; --icon-stroke-px: 1.6; position: absolute; right: 9px; pointer-events: none; color: var(--color-text-tertiary); }
+.pt-filter--company .pt-filter__label { color: var(--color-text-tertiary); }
+.pt-chip {                                   /* active-filter chip with a clear button */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 4px 0 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-lime-50, #f6f8ea);
+  color: var(--color-text-primary);
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+.pt-chip button {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.pt-chip button:hover { background: rgba(0, 0, 0, .06); }
+.pt-chip .mc-icon { --icon-n: 14; --icon-stroke-px: 1.5; }
+.pt-result-note {
+  font-size: var(--text-label-size);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   5. Data table (desktop / tablet). The phone renders the same data as .pt-rows (section 6).
+   Whole row is one link target when the list opens a record (data-href); the first cell holds
+   the real <a> so keyboard and screen readers reach it, the row click is a pointer shortcut.
+   ============================================================================= */
+.pt-table-wrap {
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.pt-section > .pt-table-wrap { border-top: 1px solid var(--pt-row-divider); }
+.pt-table-wrap--framed { border: 1px solid var(--pt-frame); border-radius: 9px; }
+.pt-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+}
+.pt-table th {
+  height: var(--pt-th-h);
+  padding: 0 var(--pt-cell-px);
+  border-bottom: 1px solid var(--pt-head-rule);
+  background: var(--pt-head-band);
+  color: var(--color-text-secondary);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-lh);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.pt-table td {
+  height: var(--pt-row-h);
+  padding: 8px var(--pt-cell-px);
+  border-bottom: 1px solid var(--pt-row-divider);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+.pt-table tbody tr:last-child td { border-bottom: 0; }
+.pt-table .is-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pt-table .is-center { text-align: center; }
+.pt-table .is-nowrap { white-space: nowrap; }
+.pt-table .is-shrink { width: 1%; white-space: nowrap; }
+.pt-table tr[data-href] { cursor: pointer; }
+.pt-table tbody tr { transition: background-color var(--mc-dur-fast) var(--mc-ease-exit); }
+.pt-table tbody tr[data-href]:hover,
+.pt-table tbody tr.is-selected { background: var(--color-row-hover); transition-duration: var(--mc-dur-instant); }
+.pt-table tbody tr.is-selected { box-shadow: inset 3px 0 0 var(--color-primary); }
+.pt-table tfoot td {
+  height: var(--pt-row-h);
+  padding: 8px var(--pt-cell-px);
+  border-top: 1px solid var(--pt-head-rule);
+  font-weight: var(--weight-semibold);
+}
+.pt-cell { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.pt-cell__title {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+a.pt-cell__title:hover { text-decoration: underline; text-decoration-color: var(--color-link-underline); text-underline-offset: 3px; }
+.pt-cell__sub {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-lh);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pt-cell--wrap .pt-cell__title,
+.pt-cell--wrap .pt-cell__sub { white-space: normal; overflow-wrap: anywhere; }
+.pt-muted { color: var(--color-text-secondary); }
+.pt-strong { font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+.pt-danger-text { color: var(--color-danger-fg, #a1291f); }
+.pt-warning-text { color: var(--color-warning-fg, #8a5300); }
+.pt-success-text { color: var(--color-success-fg, #0f5232); }
+
+/* Company code tag (row label "ARJ"); muted marker for a company outside the viewer's grants. */
+.pt-co {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 7px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  font-size: 11.5px;
+  line-height: 1;
+  font-weight: var(--weight-semibold);
+  letter-spacing: .02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pt-co--other {
+  border-style: dashed;
+  color: var(--color-text-tertiary);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0;
+}
+
+/* =============================================================================
+   6. Row list (phone): one tappable row per record, primary line + secondary line + trailing
+   value / status. >= 56 px rows, 44 px targets, the chevron only when the row opens something.
+   ============================================================================= */
+.pt-rows { margin: 0; padding: 0; list-style: none; }
+.pt-rows > li + li { border-top: 1px solid var(--pt-row-divider); }
+.pt-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: 60px;
+  padding: 10px var(--card-padding);
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--mc-dur-fast) var(--mc-ease-exit);
+}
+a.pt-row:hover { background: var(--color-row-hover); }
+a.pt-row:active { background: var(--color-row-press); }
+button.pt-row { width: 100%; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }   /* a row that runs a command (r11) */
+button.pt-row:hover { background: var(--color-row-hover); }
+button.pt-row:active { background: var(--color-row-press); }
+.pt-row.has-chevron { grid-template-columns: minmax(0, 1fr) auto 18px; }
+.pt-row__main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pt-row__title {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pt-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-lh);
+  white-space: nowrap;
+}
+.pt-row__meta > span { overflow: hidden; text-overflow: ellipsis; }
+.pt-row__meta > .pt-co, .pt-row__meta .pt-co { flex: none; overflow: visible; }   /* r10 (B3/B5/B8/B9/B11): the company code never shrinks or clips */
+.pt-row__end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pt-row__value { font-size: var(--text-body-size); font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+.pt-row__chev { --icon-n: 18; --icon-stroke-px: 1.6; color: var(--color-text-tertiary); }
+
+/* Load more (keyset "Muat Lagi": 25 per step, newest first, no totals or page numbers). */
+.pt-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px var(--card-padding) 16px;
+  border-top: 1px solid var(--pt-row-divider);
+}
+.pt-more__end { font-size: var(--text-label-size); color: var(--color-text-tertiary); }
+
+/* Which representation shows: table from 768 px, rows below. A list may force rows (narrow
+   side panels) with .pt-list--rows. */
+.pt-list__rows { display: none; }
+@media (max-width: 767px) {
+  .pt-list__table { display: none; }
+  .pt-list__rows { display: block; }
+}
+.pt-list--rows .pt-list__table { display: none; }
+.pt-list--rows .pt-list__rows { display: block; }
+/* r10 fit (MCList): tighter cells for a small overflow; rows when the table still does not fit */
+.pt-list--tight .pt-table th, .pt-list--tight .pt-table td { padding-left: 10px; padding-right: 10px; }
+.pt-list--auto-rows .pt-list__table { display: none; }
+.pt-list--auto-rows .pt-list__rows { display: block; }
+/* column priority (MCList column cls): hidden on narrower desktop / tablet content columns */
+@media (max-width: 1300px) { .pt-table .pt-hide-lg { display: none; } .pt-show-lg { display: inline-flex !important; } }
+@media (max-width: 1100px) { .pt-table .pt-hide-md { display: none; } }
+.pt-show-lg { display: none !important; }
+@media (max-width: 1300px) { .pt-show-lg { display: inline-flex !important; } }
+
+/* =============================================================================
+   7. States: skeleton (loading), empty, error ("Muat Ulang Bagian Ini"), permission, processing.
+   Every data region owns its state; one failing region never blanks the page.
+   ============================================================================= */
+.pt-skel { display: flex; flex-direction: column; gap: 12px; padding: 16px var(--card-padding); }
+.pt-skel__line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f1ee 0%, #f7f8f5 40%, #f0f1ee 80%);
+  background-size: 200% 100%;
+  animation: pt-shimmer 1.4s linear infinite;
+}
+.pt-skel__line:nth-child(3n + 2) { width: 82%; }
+.pt-skel__line:nth-child(3n) { width: 64%; }
+@keyframes pt-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .pt-skel__line { animation: none; } }
+
+.pt-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 32px var(--card-padding) 36px;
+  text-align: center;
+}
+.pt-state__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+}
+.pt-state--error .pt-state__icon { background: var(--color-danger-bg); color: var(--color-danger-fg, #a1291f); }
+.pt-state--permission .pt-state__icon { background: var(--color-neutral-bg); }
+.pt-state__title { margin: 0; font-size: calc(15 * var(--tu)); line-height: 1.35; font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+.pt-state__text { margin: 0; max-width: 46ch; font-size: var(--text-label-size); line-height: var(--text-label-lh); color: var(--color-text-secondary); }
+.pt-state__ref { font-size: 12px; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
+.pt-state .mc-btn { margin-top: 10px; }
+
+/* Processing (a command in flight): the trigger keeps its size, shows a spinner and is disabled. */
+.mc-btn.is-pending { pointer-events: none; }
+.mc-btn.is-pending .mc-btn__spin { display: inline-block; }
+.mc-btn__spin { --icon-n: 16; --icon-stroke-px: 1.8; display: none; animation: pt-spin .8s linear infinite; }
+.mc-btn.is-pending > .mc-icon:not(.mc-btn__spin) { display: none; }
+@keyframes pt-spin { to { transform: rotate(360deg); } }
+@media (max-width: 767px) {
+  .pt-result { grid-template-columns: minmax(0, 1fr); padding: 20px var(--m-card-pad, 16px); }
+  .pt-result__title { margin-top: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { .mc-btn__spin { animation-duration: 2.4s; } }
+
+/* =============================================================================
+   8. Tabs: the parts of one record (Detail Proyek: Ringkasan, Item, ...). Real tabs
+   (role=tablist, arrow keys, ?tab= in the address). Phones scroll the tab row sideways; the
+   selected tab is always scrolled into view.
+   ============================================================================= */
+.pt-tabs {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--color-border);
+  -webkit-overflow-scrolling: touch;
+}
+.pt-tabs::-webkit-scrollbar { display: none; }
+.pt-tabs.has-more-end { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); }
+.pt-tabs.has-more-start { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px); mask-image: linear-gradient(90deg, transparent, #000 48px); }
+.pt-tabs.has-more-start.has-more-end { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); }
+.pt-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--text-body-size);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--mc-dur-fast) var(--mc-ease-exit);
+}
+.pt-tab:hover { color: var(--color-text-primary); }
+.pt-tab[aria-selected="true"] { color: var(--color-text-primary); font-weight: var(--weight-semibold); }
+.pt-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-primary);
+}
+.pt-tab__count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  font-size: 11.5px;
+  line-height: 20px;
+  font-weight: var(--weight-semibold);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.pt-tab__count.is-attention { background: var(--color-warning-bg); color: var(--color-warning-fg, #8a5300); }
+.pt-tabpanel:focus { outline: none; }
+.pt-tabpanel:not([hidden]) { display: flex; flex-direction: column; gap: var(--pt-gap); }   /* r10 (B2): stacked sections inside a part keep the page rhythm */
+.pt-tabpanel[hidden] { display: none; }
+.pt-tabpanel.is-entering { animation: pt-panel-in var(--mc-dur-base) var(--mc-ease-enter) both; }
+@keyframes pt-panel-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pt-tabpanel.is-entering { animation: pt-fade var(--mc-dur-reduced) linear both; } }
+@keyframes pt-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Segmented view switch inside a section (e.g. Aktif / Belum Ditagihkan / Sengketa). */
+.pt-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pt-seg button {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.pt-seg button[aria-pressed="true"],
+.pt-seg button[aria-selected="true"] { background: var(--color-surface); color: var(--color-text-primary); box-shadow: var(--shadow-xs); }
+
+/* =============================================================================
+   9. Key facts, key-value lists, timeline, checklist
+   ============================================================================= */
+.pt-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px 24px;
+  margin: 0;
+}
+.pt-fact { min-width: 0; margin: 0; }
+.pt-fact dt, .pt-fact__label {
+  margin: 0 0 3px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-secondary);
+}
+.pt-fact dd, .pt-fact__value {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.pt-fact__hint { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; font-weight: var(--weight-regular); color: var(--color-text-secondary); }
+
+.pt-kv { display: grid; grid-template-columns: minmax(120px, 38%) minmax(0, 1fr); margin: 0; }
+.pt-kv > dt, .pt-kv > dd {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pt-row-divider);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+}
+.pt-kv > dt { padding-right: 16px; color: var(--color-text-secondary); }
+.pt-kv > dd { color: var(--color-text-primary); font-weight: var(--weight-medium); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.pt-kv > dt:last-of-type, .pt-kv > dd:last-of-type { border-bottom: 0; }
+
+.pt-timeline { margin: 0; padding: 0; list-style: none; }
+.pt-timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  padding: 10px 0;
+}
+.pt-timeline__item::before {
+  content: "";
+  grid-row: 1 / span 2;
+  width: 8px;
+  height: 8px;
+  margin: 6px 0 0 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-border-strong);
+}
+.pt-timeline__item.is-special::before { background: var(--color-warning-dot, #d99a1e); }
+.pt-timeline__item.is-owner::before { background: var(--color-primary); }
+.pt-timeline__item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 6.5px;
+  top: 24px;
+  bottom: -6px;
+  width: 1px;
+  background: var(--pt-row-divider);
+}
+.pt-timeline__text { font-size: var(--text-body-size); line-height: var(--text-body-lh); color: var(--color-text-primary); overflow-wrap: anywhere; }
+.pt-timeline__meta { grid-column: 2; font-size: var(--text-label-size); line-height: var(--text-label-lh); color: var(--color-text-secondary); }
+.pt-timeline__time { grid-column: 3; grid-row: 1; font-size: 12px; color: var(--color-text-tertiary); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.pt-checklist { margin: 0; padding: 0; list-style: none; }
+.pt-check {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: 56px;
+  padding: 8px var(--card-padding);
+  border-top: 1px solid var(--pt-row-divider);
+}
+.pt-checklist > li:first-child .pt-check { border-top: 0; }
+.pt-check__mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-tertiary);
+}
+.pt-check__mark .mc-icon { --icon-n: 15; --icon-stroke-px: 2; }
+.pt-check.is-done .pt-check__mark { background: var(--color-success-bg); color: var(--color-success-fg, #0f5232); }
+.pt-check.is-blocked .pt-check__mark { background: var(--color-warning-bg); color: var(--color-warning-fg, #8a5300); }
+.pt-check.is-na .pt-check__mark { background: var(--color-neutral-bg); }
+.pt-check__text { min-width: 0; }
+.pt-check__title, .pt-check__note { display: block; }
+.pt-check__title { font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+.pt-check__note { font-size: var(--text-label-size); line-height: var(--text-label-lh); color: var(--color-text-secondary); }
+.pt-check__end { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+
+/* =============================================================================
+   10. List-detail split (desktop / tablet landscape) + detail sheet (phone, tablet portrait)
+   ============================================================================= */
+.pt-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 1fr);
+  gap: var(--pt-gap);
+  align-items: start;
+}
+.pt-split__detail { position: sticky; top: 16px; min-width: 0; }
+.pt-split__detail:empty { display: none; }
+.pt-split__placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  padding: 24px;
+  border: 1px dashed var(--color-border-dashed, #d9dad6);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--text-label-size);
+  text-align: center;
+}
+@media (max-width: 1100px) {
+  .pt-split { grid-template-columns: minmax(0, 1fr); }
+  .pt-split__detail { display: none; }
+}
+
+/* The detail sheet (phone / narrow): full-height application layer, "Kembali ke daftar". */
+.pt-sheet-layer { position: fixed; inset: 0; z-index: 70; display: flex; justify-content: flex-end; }
+.pt-sheet-layer__scrim { position: absolute; inset: 0; background: rgba(15, 17, 12, .32); }
+.pt-sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  height: 100%;
+  background: var(--color-canvas);
+  box-shadow: var(--shadow-drawer);
+}
+.pt-sheet__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: max(6px, env(safe-area-inset-top)) 12px 6px 6px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-surface);
+}
+.pt-sheet__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px 0 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: var(--text-body-size);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+.pt-sheet__back:hover { background: var(--color-surface-sunken); }
+.pt-sheet__body { flex: 1 1 auto; overflow-y: auto; padding: 14px var(--m-gutter, 18px) calc(24px + env(safe-area-inset-bottom)); overscroll-behavior: contain; }
+html.pt-sheet-open { overflow: hidden; }
+
+/* =============================================================================
+   11. Form layout + sticky action bar (forms and floor tasks)
+   ============================================================================= */
+.pt-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+.pt-form-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pt-form-grid > .is-wide { grid-column: 1 / -1; }
+.pt-form-grid .mc-field { min-width: 0; }
+.pt-readonly {                               /* value fixed by context (e.g. "mengikuti proyek") */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--control-md);
+  padding: 0 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font-size: var(--text-body-size);
+}
+.pt-readonly small { color: var(--color-text-secondary); font-size: 12px; }
+.pt-help { margin: 6px 0 0; font-size: 12px; line-height: 16px; color: var(--color-text-secondary); }
+
+.pt-actionbar {
+  position: fixed;
+  left: var(--shell-sidebar-w, 264px);               /* follows the sidebar / rail width */
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  min-height: var(--pt-action-h);
+  padding: 10px var(--shell-content-pad-r, 32px) calc(10px + env(safe-area-inset-bottom)) var(--shell-content-pad-l, 32px);
+  border-top: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-footer);
+}
+.pt-actionbar__info { margin-right: auto; min-width: 0; font-size: var(--text-label-size); color: var(--color-text-secondary); }
+.pt-actionbar__info strong { display: block; color: var(--color-text-primary); font-size: var(--text-body-size); font-variant-numeric: tabular-nums; }
+.pt-has-actionbar { padding-bottom: calc(var(--pt-action-h) + 24px) !important; }
+
+/* Stepper host for multi-step forms (the shared .mc-stepper lives in components.css). */
+.pt-steps { padding: 13px 12px 12px; }
+
+/* =============================================================================
+   12. Document paper (r13, MCDoc — assets/js/docs.js): ONE paper for every generated document (composer
+   preview, Detail Dokumen, Dokumen Administrasi, the PO preview). An A4 sheet in em units (640 x 905 css px at
+   100 %, 11 px base) scaled to its host; pages break with "Halaman n dari m"; a draft carries the diagonal
+   marking "DRAF — belum terbit" and "Nomor: Ditetapkan saat terbit". The paper prints black on white in every
+   theme (it is a document, not interface chrome). Layouts: --fixed (A4 geometry, desktop / tablet), --flow (the
+   same pages reflowed at reading size on phones), --grow (one sheet, string render), --mini (52 thumbnail).
+   ============================================================================= */
+.pt-paper-stage {
+  display: block;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: #e9eae6;
+  overflow: auto;
+}
+.pt-paper-stage--flush { border-radius: 0; }
+.pt-paper-stage:has(> .pt-paper--scan) { background: #dcdcd6; }
+.pt-paper {
+  --pp-s: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4545em;
+  margin: 0 auto;
+  color: #1d1f1a;
+  font-size: calc(11px * var(--pp-s));
+  line-height: 1.45;
+  text-align: left;
+}
+.pt-paper--fixed { width: max-content; min-width: 100%; }
+.pt-paper--grow, .pt-paper--flow, .pt-paper--mini { width: 100%; }
+.pt-paper--grow { font-size: 11px; }
+.pt-paper--flow { font-size: 8.5px; }
+.pt-paper--mini { font-size: 7px; }
+.pt-paper__page {
+  position: relative;
+  box-sizing: border-box;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 8px 24px rgba(0, 0, 0, .08);
+  container-type: inline-size;
+}
+.pt-paper--fixed .pt-paper__page { width: 58.1818em; min-height: 82.2727em; padding: 4.0727em 4.6545em; }
+.pt-paper--grow .pt-paper__page, .pt-paper--mini .pt-paper__page { width: min(100%, 640px); aspect-ratio: 1 / 1.414; padding: 7% 8%; }
+.pt-paper--mini .pt-paper__page { padding: 6% 7%; }
+.pt-paper--flow .pt-paper__page { width: 100%; padding: 7% 8%; }
+.pt-paper__clip { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.pt-paper__wm {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(120, 124, 110, .14);
+  font-size: 12cqw;
+  font-weight: 800;
+  letter-spacing: .12em;
+  white-space: nowrap;
+  transform: rotate(-28deg);
+}
+.pt-paper--draft .pt-paper__wm { font-size: 6.6cqw; letter-spacing: .06em; color: rgba(120, 124, 110, .13); }
+.pt-paper--void .pt-paper__wm { color: rgba(161, 41, 31, .13); }
+.pt-paper--mini .pt-paper__wm { font-size: 13cqw; }
+.pt-paper--mini.pt-paper--draft .pt-paper__wm { font-size: 7cqw; }
+.pt-paper p { margin: .6em 0; }
+.pt-paper__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.4545em; padding-bottom: 1.0909em; border-bottom: 2px solid #1d1f1a; }
+.pt-paper__from { min-width: 0; color: #3b3d37; }
+.pt-paper__from.has-mark { display: flex; align-items: flex-start; gap: .9em; }
+.pt-paper__fromtext { min-width: 0; }
+.pt-paper__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.2em;
+  height: 3.2em;
+  margin-top: .1em;
+  border-radius: .5em;
+  background: #56662f;
+  color: #fff;
+  font-size: .95em;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+.pt-paper__mark--slate { background: #46566a; }
+.pt-paper__mark--sand { background: #7d6232; }
+.pt-paper__co { font-size: 1.2em; font-weight: 700; }
+.pt-paper__contact { color: #55584f; }
+.pt-paper__nw { white-space: nowrap; }
+.pt-paper__id { flex: none; max-width: 46%; text-align: right; }
+.pt-paper__id strong { display: block; font-size: 1.05em; letter-spacing: .06em; }
+.pt-paper__num { font-weight: 600; font-variant-numeric: tabular-nums; }
+.pt-paper__num.is-pending { font-weight: 400; font-style: italic; color: #62655c; }
+.pt-paper__title { margin: 1.1em 0 .7em; font-size: 1.32em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.pt-paper__table { width: 100%; border-collapse: collapse; margin: .9091em 0; }
+.pt-paper__table th, .pt-paper__table td { padding: .45em .55em; border-bottom: 1px solid #ddd; text-align: left; font-size: .95em; vertical-align: top; }
+.pt-paper__table th { background: #f3f3f0; font-weight: 600; }
+.pt-paper .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.pt-paper__table th.is-num + th, .pt-paper__table td.is-num + td { padding-left: 1.6em; }
+.pt-paper small { font-size: .85em; color: #5f625a; }
+.pt-paper__photo-h { width: 4.6em; }
+.pt-paper__table td.pt-paper__photo { width: 4.6em; padding-right: .3em; }
+.pt-paper__photo img { display: block; width: 4.2em; height: 3.15em; object-fit: cover; border: 1px solid #e3e4df; border-radius: .25em; }
+.pt-paper__parties { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8em 2em; margin: .4em 0 .8em; }
+.pt-paper__party { display: flex; flex-direction: column; gap: .12em; min-width: 0; }
+.pt-paper__label { margin-bottom: .2em; color: #62655c; font-size: .84em; letter-spacing: .06em; text-transform: uppercase; }
+.pt-paper__sublabel { display: block; margin: 1.2em 0 .3em; }
+.pt-paper__example {
+  display: inline-block;
+  margin-left: .7em;
+  padding: 0 .55em;
+  border: 1px dashed #9a9d93;
+  border-radius: .35em;
+  color: #55584f;
+  font-size: .95em;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+.pt-paper__refs { display: flex; flex-wrap: wrap; gap: .25em 1.6em; margin: 0 0 .5em; }
+.pt-paper__refs div { display: flex; gap: .45em; }
+.pt-paper__refs dt { color: #62655c; }
+.pt-paper__refs dd { margin: 0; font-weight: 600; }
+.pt-paper__totals { width: min(100%, 62%); margin: .3em 0 0 auto; }
+.pt-paper__totals div { display: flex; justify-content: space-between; gap: 1em; padding: .22em .55em; }
+.pt-paper__totals dt, .pt-paper__totals dd { margin: 0; }
+.pt-paper__totals dd { font-variant-numeric: tabular-nums; }
+.pt-paper__totals .is-strong { margin-top: .25em; padding-top: .45em; border-top: 1.5px solid #1d1f1a; font-weight: 700; }
+.pt-paper__validity { margin: 1em 0 0 !important; }
+.pt-paper__validity span { color: #62655c; }
+.pt-paper__notes { margin: 1.1em 0 0; padding-left: 1.2em; color: #4c4f47; }
+.pt-paper__sublabel + .pt-paper__notes { margin-top: 0; }
+.pt-paper__notes li { margin: .12em 0; }
+.pt-paper__notes.is-example li, .pt-paper__terms.is-example li { color: #55584f; }
+.pt-paper__terms ol { margin: 0; padding-left: 1.3em; color: #4c4f47; }
+.pt-paper__terms li { margin: .12em 0; }
+.pt-paper__signs { display: flex; justify-content: space-between; gap: 1.4545em; margin-top: 2em; font-size: .9545em; }
+.pt-paper__sign { min-width: 12.7273em; text-align: center; }
+.pt-paper__sign-space { display: block; height: 4.1818em; }
+.pt-paper__sign strong { display: inline-block; margin-top: .2em; }
+.pt-paper__band {
+  margin: .9em 0 0;
+  padding: .45em .7em;
+  border: 1px dashed #b4862c;
+  background: #fdf7ea;
+  color: #7a5310;
+  font-size: .9em;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.pt-paper__band--prep { margin: 0 0 1em; }
+.pt-paper__kv { margin: .8em 0; }
+.pt-paper__kv div { display: grid; grid-template-columns: 11em minmax(0, 1fr); gap: 1em; padding: .45em 0; border-bottom: 1px dotted #c9cac4; }
+.pt-paper__kv dt { color: #5f625a; }
+.pt-paper__kv dd { margin: 0; }
+.pt-paper__amount { display: inline-block; padding: .4em 1em; border: 1.5px solid #1d1f1a; font-size: 1.25em; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pt-paper__runhead { display: flex; justify-content: space-between; gap: 1em; margin-bottom: 1.3em; padding-bottom: .6em; border-bottom: 1px solid #d9dad4; color: #55584f; font-size: .86em; }
+.pt-paper__foot {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 1.5em;
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  padding-top: .5em;
+  border-top: 1px solid #ecece8;
+  color: #62655c;
+  font-variant-numeric: tabular-nums;
+}
+.pt-paper__foot > span { font-size: .82em; }       /* the box keeps the page em (its edges align with the text column) */
+.pt-paper--fixed .pt-paper__foot { left: 4.6545em; right: 4.6545em; }
+.pt-paper--flow .pt-paper__foot { position: static; margin-top: 2em; }
+.pt-paper--void .pt-paper__page { color: #4a4c46; }
+
+/* uploaded original: a scanned page, never re-created by the system */
+.pt-paper--scan .pt-paper__page { margin: 0; background: #f8f7f2; color: #2c2e29; }
+.pt-paper__scanhead { display: flex; flex-direction: column; align-items: center; gap: .1em; padding-bottom: .8em; border-bottom: 3px double #3b3d38; text-align: center; color: #4a4c46; }
+.pt-paper__scanhead strong { color: #2c2e29; font-size: 1.25em; letter-spacing: .04em; text-transform: uppercase; }
+.pt-paper__scantitle { font-weight: 700; letter-spacing: .08em; text-align: center; text-decoration: underline; text-underline-offset: .25em; }
+.pt-paper__scanref { color: #4b4d47; text-align: center; }
+.pt-paper__scanlines { display: flex; flex-direction: column; gap: .75em; }
+.pt-paper__scanlines span { display: block; height: .55em; border-radius: 2px; background: #d3d3cc; }
+.pt-paper__scanlines i { display: block; height: .3em; }
+.pt-paper__w96 { width: 96%; } .pt-paper__w94 { width: 94%; } .pt-paper__w92 { width: 92%; } .pt-paper__w90 { width: 90%; }
+.pt-paper__w88 { width: 88%; } .pt-paper__w84 { width: 84%; } .pt-paper__w76 { width: 76%; } .pt-paper__w70 { width: 70%; } .pt-paper__w60 { width: 60%; }
+.pt-paper__scansign { display: flex; flex-direction: column; align-items: center; gap: .45em; width: 42%; margin: 2.4em 0 4.5em auto; color: #55574f; text-align: center; }
+.pt-paper__stamp {
+  display: grid;
+  place-items: center;
+  width: 6.4em;
+  height: 6.4em;
+  padding: .6em;
+  border: 2px solid rgba(46, 84, 150, .5);
+  border-radius: 50%;
+  color: rgba(46, 84, 150, .72);
+  font-size: .78em;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-12deg);
+}
+.pt-paper__scanline { width: 100%; height: 1px; background: #55574f; }
+.pt-paper__scancap { position: absolute; left: 0; right: 0; bottom: 0; padding: .7em 1em; background: rgba(29, 31, 26, .8); color: #fff; font-size: .95em; text-align: center; }
+
+/* small preview inside a panel (52): the top of the first page, faded */
+.pt-paper-stage--mini {
+  max-height: 248px;
+  padding: 12px 12px 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 70%, transparent);
+  mask-image: linear-gradient(#000 70%, transparent);
+}
+/* the off-screen measuring sheet (pagination at the reference size) */
+.pt-paper-measure { position: absolute; top: 0; left: -100000px; width: 760px; visibility: hidden; pointer-events: none; contain: layout style; }
+.pt-paper__mb { display: block; }
+
+/* =============================================================================
+   12b. Guided work primitives (r13, assets/js/guide.js): MCProgress (on the shared .mc-stepper), MCChecks,
+   MCResult, MCNext, MCPrereq. Calm, text-first, one weight level per row; warnings never use the error tone.
+   ============================================================================= */
+@media (max-width: 767px) {
+  .mc-stepper--wrap { grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px; }
+  .mc-stepper--wrap > .mc-step:nth-child(3n)::after { display: none; }
+}
+.pt-checks__summary { margin: 0 0 6px; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-weight: var(--weight-semibold); }
+.pt-checks.has-blocking .pt-checks__summary { color: var(--color-danger-fg); }
+.pt-checks.has-warning .pt-checks__summary { color: var(--color-warning-fg); }
+.pt-checks.is-clear .pt-checks__summary { color: var(--color-success-fg); }
+.pt-checks__list { display: grid; margin: 0; padding: 0; list-style: none; }
+.pt-checkitem {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid var(--pt-row-divider);
+  color: var(--color-text-primary);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+}
+.pt-checkitem:first-child { border-top: 0; }
+.pt-checkitem__icon { --icon-n: 18; --icon-stroke-px: 1.7; margin-top: 2px; }
+.pt-checkitem--blocking .pt-checkitem__icon { color: var(--color-danger-fg); }
+.pt-checkitem--warning .pt-checkitem__icon { color: var(--color-warning-fg); }
+.pt-checkitem--ok { color: var(--color-text-secondary); }
+.pt-checkitem--ok .pt-checkitem__icon { color: var(--color-success-fg); }
+.pt-checkitem__fix { align-self: center; font-size: var(--text-label-size); white-space: nowrap; }
+
+.pt-result { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 16px; padding: 24px var(--card-padding) 22px; }
+.pt-result__body { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.pt-result__title { margin: 9px 0 0; color: var(--color-text-primary); font-size: calc(20 * var(--tu)); line-height: 1.3; font-weight: var(--weight-bold); letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.pt-result__title:focus { outline: none; }
+.pt-result__number { color: inherit; font-weight: inherit; font-variant-numeric: tabular-nums slashed-zero; white-space: nowrap; }
+.pt-result__text { max-width: 70ch; margin: 0; color: var(--color-text-secondary); font-size: var(--text-body-size); line-height: 1.5; }
+.pt-result__copy { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-label-size); }
+.pt-result__facts { width: 100%; margin-top: 6px; padding: 14px 0 2px; border-top: 1px solid var(--pt-row-divider); }
+.pt-result__pdf { display: flex; align-items: center; gap: 8px; margin: 2px 0 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-result__pdf-icon { --icon-n: 16; flex: none; }
+.pt-result__pdf--pending .pt-result__pdf-icon { animation: pt-spin 1.1s linear infinite; }
+.pt-result__pdf--ready .pt-result__pdf-icon { color: var(--color-success-fg); }
+.pt-result__pdf--failed { color: var(--color-warning-fg); }
+@keyframes pt-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pt-result__pdf--pending .pt-result__pdf-icon { animation: none; } }
+
+.pt-next { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--pt-row-divider); }
+.pt-next__label { margin: 0; color: var(--color-text-tertiary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-weight: var(--weight-semibold); }
+.pt-next__main { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.pt-next__why { margin: 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-next__links { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 0; padding: 0; list-style: none; }
+
+.pt-prereq {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-lh);
+}
+.pt-prereq__icon { --icon-n: 18; --icon-stroke-px: 1.6; margin-top: 1px; color: var(--color-text-secondary); }
+.pt-prereq--owner { border-color: var(--color-warning-bg); background: color-mix(in srgb, var(--color-warning-bg) 45%, var(--color-surface)); }
+.pt-prereq--owner .pt-prereq__icon { color: var(--color-warning-fg); }
+.pt-prereq__body { min-width: 0; }
+.pt-prereq__title { margin: 0; font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.pt-prereq__text, .pt-prereq__who { margin: 2px 0 0; color: var(--color-text-secondary); }
+.pt-prereq__link { align-self: center; white-space: nowrap; }
+
+/* =============================================================================
+   12c. Live document composer (r13, assets/js/composer.js): editor | sticky preview rail >= 1280 px
+   (preview 44 % of the content row, its own scroll), a sticky "Rincian | Pratinjau" switch below 1280 px,
+   one sticky action bar (D-38). The preview never saves or numbers.
+   ============================================================================= */
+/* preview share measured at 1280 / 1366 / 1440 / 1920 (scratch/r13/phase5a/probe): 46 % keeps the paper text at
+   ~7.7 / 8.4 / 9.0 px with the editor >= 540 px; >= 1600 the sheet reaches 100 % at 42 % */
+.pt-compose { --compose-top: 16px; --compose-preview: 46%; min-width: 0; }
+.pt-compose__result[hidden] { display: none; }
+.pt-compose__switch { display: none; }
+.pt-compose__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--pt-gap); align-items: start; }
+.pt-compose__editor { display: flex; flex-direction: column; gap: var(--pt-gap); min-width: 0; }
+.pt-compose__editor:focus { outline: none; }
+.pt-compose__editor.is-frozen .pt-compose__sections { opacity: .72; }
+.pt-compose__sections { display: flex; flex-direction: column; gap: var(--pt-gap); min-width: 0; }
+.pt-compose__progress { padding: 14px 12px 12px; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.pt-compose__preview {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.pt-compose__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--pt-row-divider); }
+.pt-compose__ptitle { margin: 0 auto 0 0; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.pt-compose__ptitle:focus { outline: none; }
+.pt-compose__page { color: var(--color-text-secondary); font-size: var(--text-label-size); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pt-compose__paper { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.pt-compose__paper > .pt-paper-stage { flex: 1 1 auto; min-height: 0; }
+.pt-paper-stage--rail { padding: 12px; border-radius: 0; }
+.pt-compose__pnote { margin: 0; padding: 8px 16px 10px; border-top: 1px solid var(--pt-row-divider); color: var(--color-text-tertiary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__toggle { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px; cursor: pointer; }
+.pt-compose__toggle input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--color-primary); }
+.pt-compose__toggle strong { display: block; font-weight: var(--weight-semibold); }
+.pt-compose__hint { display: block; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__info strong.is-blocking { color: var(--color-danger-fg); }
+.pt-compose__info strong.is-warning { color: var(--color-warning-fg); }
+.pt-compose__info span { display: block; }
+.pt-compose__status { margin: 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__status:empty { display: none; }
+.pt-compose__outcome { flex: 1 1 320px; max-width: 520px; margin: 0; padding: 8px 12px; border-radius: var(--radius-md); background: var(--color-surface-sunken); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__outcome p { margin: 0; }
+.pt-compose__otitle { font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+.pt-compose__outcome--unknown, .pt-compose__outcome--failed { background: color-mix(in srgb, var(--color-warning-bg) 55%, var(--color-surface)); }
+.pt-compose__outcome--prereq { padding: 0; background: none; }
+.pt-compose__err { margin: 4px 0 0; }
+td > .pt-compose__err { text-align: left; white-space: normal; }
+/* r13 phase 5b — identity strip (carried data, read-only, ONE source tag + "Perbaiki di …"), line editor rows,
+   totals, the bar's leading figure and "Kembalikan isian". Shared by every template (14 quotation, 62 invoice,
+   51 review); no business data in the markup helpers. */
+.pt-compose__lead:empty { display: none; }
+.pt-compose__id { padding: 16px var(--card-padding) 0; }
+.pt-compose__idhead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 28px; }
+.pt-compose__idtitle { color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.pt-compose__idquiet { color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__idrows { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px 24px; margin: 14px 0 0; }
+.pt-compose__idrow { min-width: 0; }
+.pt-compose__idrow.is-wide { grid-column: 1 / -1; }
+.pt-compose__idrow dt { margin: 0 0 2px; color: var(--color-text-tertiary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__idrow dd { margin: 0; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-medium); overflow-wrap: anywhere; }
+.pt-compose__idsub { display: block; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-weight: var(--weight-regular); font-variant-numeric: tabular-nums; }
+.pt-compose__idlink { color: inherit; text-decoration: underline; text-decoration-color: var(--color-link-underline); text-underline-offset: 3px; }
+.pt-compose__idlink:hover { text-decoration-color: currentColor; }
+@media (max-width: 767px) { .pt-compose__idlink { display: inline-block; padding: 12px 0; margin: -12px 0; } }   /* a 44 px target on phones, the row keeps its height */
+.pt-compose__idnote { margin: 12px 0 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__src { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; margin: 14px calc(-1 * var(--card-padding)) 0; padding: 6px var(--card-padding) 6px; border-top: 1px solid var(--pt-row-divider); }
+.pt-compose__srctag { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-variant-numeric: tabular-nums; }
+.pt-compose__srctag .mc-icon { --icon-n: 15; --icon-stroke-px: 1.6; flex: none; color: var(--color-text-tertiary); }
+.pt-compose__srcfix { margin-right: -4px; }
+.pt-compose__foot { flex-wrap: wrap; }
+.pt-compose__raw:empty { display: none; }
+.pt-compose__raw > .mc-notice { margin: 0; }
+/* line editor: thumb · name / meta · value, the defined inputs on the row below; one row from ~700 px of editor */
+.pt-compose__section { container-type: inline-size; }
+.pt-clines { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--pt-row-divider); }
+.pt-cline {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-areas: "media head value" ". fields fields";
+  align-items: start;
+  gap: 10px 14px;
+  padding: 14px var(--card-padding);
+  border-bottom: 1px solid var(--pt-row-divider);
+}
+.pt-cline:last-child { border-bottom: 0; }
+.pt-cline__media { grid-area: media; display: flex; }
+.pt-cline__head { grid-area: head; display: flex; flex-direction: column; justify-content: center; min-width: 0; min-height: 40px; }
+.pt-cline__name { color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); overflow-wrap: anywhere; }
+.pt-cline__meta { color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.pt-cline__value { grid-area: value; align-self: center; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.pt-cline__fields { grid-area: fields; display: grid; grid-template-columns: minmax(96px, 120px) minmax(124px, 156px) minmax(112px, 136px); gap: 10px 12px; justify-content: start; min-width: 0; }
+.pt-cline__field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.pt-cline__label { color: var(--color-text-tertiary); font-size: 12px; line-height: 16px; font-weight: var(--weight-medium); }
+.pt-cline__field .mc-input { --input-px: 10px; --input-gap: 6px; }
+.pt-cline__field .mc-input__trail { font-size: 12px; }
+.pt-cline__cur { order: -1; margin-left: 0; }
+.pt-cline__field .mc-field__error { margin: 2px 0 0; font-size: 12px; line-height: 16px; }
+.pt-cline__stale { grid-column: 2 / -1; display: flex; align-items: center; gap: 6px; margin: -2px 0 0; color: var(--color-info-fg); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-cline__stale .mc-icon { --icon-n: 15; flex: none; }
+.pt-clines--read .pt-cline { grid-template-areas: "media head value"; padding-top: 12px; padding-bottom: 12px; }
+@container (min-width: 700px) {
+  .pt-cline { grid-template-columns: 40px minmax(0, 1fr) auto auto; grid-template-areas: "media head fields value"; align-items: center; }
+  .pt-cline__fields { grid-template-columns: 104px 136px 120px; }
+  .pt-cline__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pt-cline__value { min-width: 116px; }
+  .pt-clines--read .pt-cline { grid-template-columns: 40px minmax(0, 1fr) auto; grid-template-areas: "media head value"; }
+}
+.pt-cline-stale { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 10px; margin: 0; padding: 10px var(--card-padding); border-top: 1px solid var(--pt-row-divider); background: color-mix(in srgb, var(--color-info-bg) 45%, var(--color-surface)); color: var(--color-text-primary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-cline-stale p { margin: 0; }
+.pt-cline-stale__icon { --icon-n: 18; color: var(--color-info-fg); }
+/* totals: the estimate's label on the left, the figures right-aligned (sales value · tax · total apart, DC-3) */
+.pt-ctotals { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 8px 24px; padding: 14px var(--card-padding) 18px; border-top: 1px solid var(--pt-head-rule); background: color-mix(in srgb, var(--color-surface-sunken) 40%, var(--color-surface)); }
+.pt-ctotals__title { margin: 4px 0 0; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.pt-ctotals__title span { display: block; margin-top: 2px; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-weight: var(--weight-regular); }
+.pt-ctotals__list { display: flex; flex-direction: column; margin: 0; }
+.pt-ctotals__list > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 4px 0; }
+.pt-ctotals__list dt { color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-ctotals__list dd { margin: 0; color: var(--color-text-primary); font-size: var(--text-body-size); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; text-align: right; }
+.pt-ctotals__list > .is-total { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--pt-head-rule); }
+.pt-ctotals__list > .is-total dt { color: var(--color-text-primary); font-size: var(--text-body-size); font-weight: var(--weight-semibold); }
+.pt-ctotals__list > .is-total dd { font-size: calc(18 * var(--tu)); line-height: 1.25; font-weight: var(--weight-bold); letter-spacing: -0.01em; }
+.pt-ctotals__note { grid-column: 1 / -1; margin: 0; color: var(--color-warning-fg); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+@container (max-width: 520px) { .pt-ctotals { grid-template-columns: minmax(0, 1fr); } }
+/* the sticky bar: the leading figure (total, estimate) · the check count + numbering cue · status · actions */
+.pt-compose__sum { display: flex; flex-direction: column; flex: none; margin: 0; padding-right: 20px; border-right: 1px solid var(--color-border-subtle); color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__sum strong { color: var(--color-text-primary); font-size: calc(17 * var(--tu)); line-height: 1.3; font-weight: var(--weight-bold); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.pt-compose__sum[hidden] { display: none; }
+.pt-compose__revert { flex: none; }
+.pt-compose__revert[hidden] { display: none; }
+/* tablet portrait: the bar keeps the figure, the check count (one line) and the two buttons; the cue and
+   "Kembalikan isian" step aside (the cue stays in Pemeriksaan's numbering item) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .pt-compose__bar .pt-compose__info { flex: 1 1 auto; min-width: 0; }
+  .pt-compose__bar .pt-compose__info strong { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .pt-compose__bar .pt-compose__info span, .pt-compose__revert, .pt-compose__bar .pt-compose__status { display: none !important; }
+  .pt-compose__bar .mc-btn { flex: none; }
+}
+@media (min-width: 1280px) { .pt-compose.is-readonly .pt-compose__preview { height: calc(100vh - var(--compose-top) - 24px); height: calc(100dvh - var(--compose-top) - 24px); } }
+/* a compact disclosure after Pemeriksaan (revision history, versions, activity): never displaces the preview */
+.pt-compose__more { padding: 0; overflow: hidden; }
+.pt-compose__moresum { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px var(--card-padding); cursor: pointer; list-style: none; }
+.pt-compose__moresum::-webkit-details-marker { display: none; }
+.pt-compose__moresum:focus-visible { outline: none; box-shadow: inset var(--focus-ring); }
+.pt-compose__moretitle { color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.pt-compose__morecount { margin-right: auto; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__morechev { --icon-n: 18; flex: none; color: var(--color-text-tertiary); transition: transform var(--mc-dur-fast) var(--mc-ease-standard); }
+.pt-compose__more[open] .pt-compose__morechev { transform: rotate(180deg); }
+.pt-compose__morebody { margin: 0; padding: 0; border-top: 1px solid var(--pt-row-divider); }
+div.pt-compose__morebody > .pt-timeline { padding: 12px var(--card-padding) 14px; }
+@media (prefers-reduced-motion: reduce) { .pt-compose__morechev { transition: none; } }
+/* radio cards for a defined choice (basis, layout): two equal cards, the chosen one tinted (lime / olive accent) */
+.pt-compose__choices-set { min-width: 0; margin: 0; padding: 0; border: 0; }
+.pt-compose__choices-set > legend { margin: 0 0 8px; padding: 0; }
+.pt-compose__choicegrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pt-compose__choice { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 10px; min-height: 56px; padding: 11px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); cursor: pointer; transition: border-color var(--mc-dur-fast) var(--mc-ease-exit), background-color var(--mc-dur-fast) var(--mc-ease-exit); }
+.pt-compose__choice:hover { border-color: var(--color-border-hover); }
+.pt-compose__choice input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--color-primary); }
+.pt-compose__choice:has(input:checked) { border-color: var(--color-primary); background: var(--color-lime-50); }
+.pt-compose__choice:has(input:focus-visible) { border-color: var(--color-accent-olive); box-shadow: var(--focus-ring); }
+.pt-compose__choice:has(input:disabled) { cursor: default; }
+.pt-compose__choicet { display: block; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.pt-compose__choices { display: block; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+@media (prefers-reduced-motion: reduce) { .pt-compose__choice { transition: none; } }
+@media (max-width: 767px) { .pt-compose__choicegrid { grid-template-columns: minmax(0, 1fr); } .pt-compose__choice { min-height: var(--m-control-h, 48px); } }
+@media (min-width: 1280px) {
+  .pt-compose__grid { grid-template-columns: minmax(0, 1fr) minmax(0, var(--compose-preview)); }
+  .pt-compose__preview { position: sticky; top: var(--compose-top); height: calc(100vh - var(--compose-top) - var(--pt-action-h) - 24px); height: calc(100dvh - var(--compose-top) - var(--pt-action-h) - 24px); }
+}
+@media (min-width: 1600px) { .pt-compose { --compose-preview: 42%; } }
+@media (min-width: 1280px) and (max-width: 1599px) { .pt-compose__full .mc-btn__label { display: none; } .pt-compose.is-staged .pt-compose__full .mc-btn__label { display: inline; } }
+@media (max-width: 1279px) {
+  .pt-compose__switch {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: block;
+    margin: 0 0 var(--pt-gap);
+    padding: 8px 0;
+    background: var(--color-canvas);
+  }
+  .pt-compose__seg { display: flex; width: min(100%, 420px); }
+  .pt-compose__seg button { flex: 1 1 0; }
+  .pt-compose[data-pane="editor"] .pt-compose__preview { display: none; }
+  .pt-compose[data-pane="preview"] .pt-compose__editor { display: none; }
+  .pt-compose__preview { height: calc(100vh - 150px); height: calc(100dvh - 150px); }
+}
+@media (max-width: 767px) {
+  .pt-compose__switch { top: calc(var(--m-appbar-h) + var(--safe-top, 0px)); margin-left: calc(-1 * var(--m-gutter, 18px)); margin-right: calc(-1 * var(--m-gutter, 18px)); padding: 8px var(--m-gutter, 18px); }
+  .pt-compose__seg { width: 100%; }
+  .pt-compose__toolbar { padding: 8px 10px 8px 14px; }
+  .pt-compose__full .mc-btn__label { display: none; }
+  .pt-compose__zoom { display: none; }                  /* phones read the reflowed pages: no zoom to choose */
+  .pt-compose__preview { height: calc(100dvh - var(--m-appbar-h) - 170px); border-radius: var(--radius-md); }
+  .pt-compose.is-keyboard .pt-compose__bar { display: none; }
+  .pt-compose__bar { flex-wrap: wrap; row-gap: 8px; }
+  .pt-compose__status:not(:empty), .pt-compose__outcome { flex: 1 1 100%; max-width: none; }
+  .pt-compose .pt-compose__bar [data-compose-save] { flex: 0 0 auto; min-width: 0; padding-left: 16px; padding-right: 16px; }
+  .pt-compose .pt-compose__bar [data-compose-issue] { flex: 1 1 auto; min-width: 0; }
+  .pt-compose__sum, .pt-compose__revert { display: none !important; }
+  .pt-compose__id { padding-top: 14px; }
+  .pt-cline { padding-left: var(--m-card-pad, 16px); padding-right: var(--m-card-pad, 16px); }
+  .pt-cline { grid-template-areas: "media head value" "fields fields fields"; }
+  .pt-cline__fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); width: 100%; }
+  .pt-cline__field--tax { grid-column: 1 / -1; }
+  .pt-clines--read .pt-cline { grid-template-columns: 40px minmax(0, 1fr); grid-template-areas: "media head" "media value"; row-gap: 2px; }
+  .pt-clines--read .pt-cline__value { justify-self: start; text-align: left; }
+  .pt-compose__idrows { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+}
+/* full-screen preview (dialog) */
+.pt-paper-full { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; background: #dcddd8; }
+.pt-paper-full__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 10px 20px; background: var(--color-surface); box-shadow: var(--shadow-footer); }
+.pt-paper-full__title { margin: 0 auto 0 0; font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); color: var(--color-text-primary); }
+.pt-paper-full__body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.pt-paper-full__body > .pt-paper-stage { flex: 1 1 auto; min-height: 0; }
+.pt-paper-stage--full { padding: 24px; border-radius: 0; background: transparent; }
+@media (max-width: 767px) { .pt-paper-full__bar { padding: 8px 12px; } .pt-paper-stage--full { padding: 12px; } }
+.pt-versions { margin: 0; padding: 0; list-style: none; }
+.pt-version {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 10px;
+  padding: 10px var(--card-padding);
+  border-top: 1px solid var(--pt-row-divider);
+}
+.pt-version.is-current { background: var(--color-row-hover); box-shadow: inset 3px 0 0 var(--color-primary); }
+
+/* =============================================================================
+   13. Notices, metric strip, hub tiles, system page
+   ============================================================================= */
+.pt-notice {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-info-bg);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-info-bg) 55%, var(--color-surface));
+  color: var(--color-text-primary);
+  font-size: var(--text-label-size);
+  line-height: var(--text-label-lh);
+}
+.pt-notice > .mc-icon { --icon-n: 20; --icon-stroke-px: 1.6; color: var(--color-info-fg, #1f4f86); }
+.pt-notice--warning { border-color: var(--color-warning-bg); background: color-mix(in srgb, var(--color-warning-bg) 60%, var(--color-surface)); }
+.pt-notice--warning > .mc-icon { color: var(--color-warning-fg, #8a5300); }
+.pt-notice--danger { border-color: var(--color-danger-bg); background: color-mix(in srgb, var(--color-danger-bg) 60%, var(--color-surface)); }
+.pt-notice--danger > .mc-icon { color: var(--color-danger-fg, #a1291f); }
+.pt-notice--success { border-color: var(--color-success-bg); background: color-mix(in srgb, var(--color-success-bg) 60%, var(--color-surface)); }
+.pt-notice--success > .mc-icon { color: var(--color-success-fg, #0f5232); }
+.pt-notice__title { display: block; font-weight: var(--weight-semibold); font-size: var(--text-body-size); line-height: var(--text-body-lh); }
+.pt-notice__actions { display: flex; gap: 8px; align-self: center; }
+
+.pt-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--pt-gap);
+}
+.pt-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 16px;
+  color: inherit;
+  text-decoration: none;
+}
+a.pt-metric { transition: border-color var(--mc-dur-fast) var(--mc-ease-exit), box-shadow var(--mc-dur-fast) var(--mc-ease-exit); }
+a.pt-metric:hover { border-color: var(--color-card-hover-border); box-shadow: var(--shadow-card-hover); }
+.pt-metric__label { font-size: var(--text-label-size); line-height: var(--text-label-lh); color: var(--color-text-secondary); }
+.pt-metric__value {
+  font-size: calc(22 * var(--tu));
+  line-height: 1.2;
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.pt-metric__note { font-size: 12px; line-height: 16px; color: var(--color-text-secondary); }
+
+.pt-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--pt-gap); }
+.pt-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 112px;
+  padding: 16px 18px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color var(--mc-dur-fast) var(--mc-ease-exit), box-shadow var(--mc-dur-fast) var(--mc-ease-exit);
+}
+.pt-tile:hover { border-color: var(--color-card-hover-border); box-shadow: var(--shadow-card-hover); }
+.pt-tile__title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: calc(15.5 * var(--tu)); font-weight: var(--weight-bold); color: var(--color-text-primary); }
+.pt-tile__title .mc-icon { --icon-n: 18; --icon-stroke-px: 1.6; color: var(--color-text-tertiary); flex: none; }
+.pt-tile__text { font-size: var(--text-label-size); line-height: var(--text-label-lh); color: var(--color-text-secondary); }
+.pt-tile__figure { margin-top: auto; font-size: var(--text-body-size); font-weight: var(--weight-semibold); color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+
+.pt-system {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 560px;
+  margin: 8vh auto 0;
+  padding: 0 4px;
+}
+.pt-system__code { font-size: 13px; font-weight: var(--weight-semibold); color: var(--color-text-tertiary); letter-spacing: .04em; }
+.pt-system__title { margin: 0; font-size: calc(28 * var(--tu)); line-height: 1.2; font-weight: var(--weight-bold); letter-spacing: -0.03em; }
+.pt-system__text { margin: 0; color: var(--color-text-secondary); font-size: var(--text-body-size); line-height: 1.55; }
+.pt-system__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+
+.pt-progress { display: flex; align-items: center; gap: 10px; min-width: 120px; }
+.pt-progress .mc-progress { flex: 1 1 auto; }
+.pt-progress__value { font-size: 12px; font-weight: var(--weight-semibold); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; min-width: 34px; text-align: right; }
+
+/* =============================================================================
+   14. Phone + tablet adjustments (designed, not shrunk): one column, full-width search, page
+   actions below the title, action bar above the bottom navigation.
+   ============================================================================= */
+@media (max-width: 1024px) {
+  .pt-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .pt-grid-2, .pt-grid-2--even { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767px) {
+  :root { --pt-gap: var(--m-card-gap, 14px); }
+  .pt-page { margin-top: 10px; }
+  .pt-head__row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .pt-head__actions { justify-content: flex-start; padding-bottom: 0; }
+  .pt-head__actions .mc-btn { flex: 1 1 auto; }
+  .pt-head__actions .mc-btn--icon { flex: none; }
+  .pt-grid-3 { grid-template-columns: minmax(0, 1fr); }
+  .pt-section__head { min-height: 52px; padding: 12px var(--m-card-pad, 16px) 8px; }
+  .pt-section__body { padding: 0 var(--m-card-pad, 16px) var(--m-card-pad, 16px); }
+  .pt-section__body--flush { padding: 0; }   /* r10 (B2): flush means no bottom padding on phones either */
+  .pt-section__body--flush-x { padding-left: 0; padding-right: 0; }
+  .pt-section__foot { padding: 10px var(--m-card-pad, 16px); }
+  .pt-row, .pt-check, .pt-version { padding-left: var(--m-card-pad, 16px); padding-right: var(--m-card-pad, 16px); }
+  .pt-toolbar { flex-wrap: nowrap; flex-direction: column; align-items: stretch; }
+  .pt-toolbar__search { flex: none; max-width: none; }
+  .pt-toolbar__filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; margin: 0 calc(-1 * var(--m-gutter, 18px)); padding-left: var(--m-gutter, 18px); padding-right: var(--m-gutter, 18px); }
+  .pt-toolbar__filters::-webkit-scrollbar { display: none; }
+  .pt-filter { flex: none; height: var(--touch-min); }   /* r10 a11y: 44 px targets */
+  .pt-toolbar__end { margin-left: 0; }
+  .pt-form-grid, .pt-form-grid--3 { grid-template-columns: minmax(0, 1fr); }
+  .pt-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+  .pt-kv { grid-template-columns: minmax(0, 1fr); }
+  .pt-kv > dt { padding: 10px 0 0; border-bottom: 0; font-size: 12px; }
+  .pt-kv > dd { padding: 2px 0 10px; }
+  .pt-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pt-metric { padding: 12px 14px; }
+  .pt-metric__value { font-size: 18px; }
+  .pt-tiles { grid-template-columns: minmax(0, 1fr); }
+  .pt-tab { height: 44px; padding: 0 12px; }
+  .pt-paper-stage { padding: 10px; margin: 0 calc(-1 * var(--m-card-pad, 16px)); border-radius: 0; }
+  .pt-paper--grow { font-size: 8.5px; }
+  .pt-paper-stage--rail, .pt-paper-stage--full, .pt-paper-stage--mini { margin: 0; }
+  .pt-paper-stage--mini { padding: 12px 12px 0; border-radius: var(--radius-md); }
+  .pt-actionbar {
+    left: 0;
+    bottom: calc(var(--m-bottom-nav-h, 64px) + var(--safe-bottom, 0px));
+    min-height: 0;
+    padding: 10px var(--m-gutter, 18px);
+    gap: 8px;
+    box-shadow: 0 -1px 0 var(--color-border-subtle);
+  }
+  html[data-no-bottom-nav] .pt-actionbar { bottom: 0; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  .pt-actionbar .mc-btn { flex: 1 1 0; min-height: 48px; }
+  .pt-actionbar__info { display: none; }
+  .pt-has-actionbar { padding-bottom: calc(var(--m-bottom-nav-h, 64px) + 96px + var(--safe-bottom, 0px)) !important; }
+  .pt-system { margin-top: 4vh; }
+  .pt-system__actions .mc-btn { flex: 1 1 auto; }
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  .pt-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Commit / risk confirmation content inside the shared application dialog (MCRisk). */
+.mc-modal__summary { margin: 14px 0 0; padding: 2px 12px; border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.mc-modal__summary > dt, .mc-modal__summary > dd { padding: 8px 0; font-size: calc(13.5 * var(--tu)); line-height: calc(19 * var(--tu)); }
+.mc-modal__consequence { margin: 12px 0 0; color: var(--color-text-secondary); font-size: calc(13.5 * var(--tu)); line-height: calc(20 * var(--tu)); }
+.pt-risk-field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.pt-risk-field .mc-input__control {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 16px;                         /* >= 16 px: no iOS focus zoom */
+  resize: vertical;
+}
+.pt-risk-field .mc-input__control:focus { outline: none; border-color: var(--color-focus); box-shadow: 0 0 0 3px var(--brand-focus-halo, rgba(84, 94, 33, .25)); }
+.mc-modal__ok:disabled { opacity: .48; cursor: not-allowed; }
+@media (max-width: 767px) { .mc-modal__summary { grid-template-columns: minmax(0, 1fr); } }
+/* r13 phase 5b: vouching statements in full + one required tick (SCR-55 "Mulai Penomoran") */
+.pt-risk-statements, .mc-modal .pt-risk-statements { display: grid; gap: 8px; margin: 14px 0 0; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); list-style: none; counter-reset: pt-stmt; color: var(--color-text-primary); font-size: calc(13.5 * var(--tu)); line-height: calc(20 * var(--tu)); }
+.pt-risk-statements li { display: grid; grid-template-columns: 26px minmax(0, 1fr); counter-increment: pt-stmt; }
+.pt-risk-statements li::before { content: "(" counter(pt-stmt, lower-alpha) ")"; color: var(--color-text-secondary); font-weight: var(--weight-semibold); }
+.pt-risk-ack { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: start; gap: 10px; margin: 14px 0 0; min-height: 24px; color: var(--color-text-primary); font-size: calc(13.5 * var(--tu)); line-height: calc(20 * var(--tu)); font-weight: var(--weight-semibold); cursor: pointer; }
+.pt-risk-ack input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--color-primary); }
+
+/* Detail hub on phones (D-16): first part inline, the other parts as drill-in rows -> sheet. */
+.pt-drill__first { display: flex; flex-direction: column; gap: var(--pt-gap); }
+.pt-parts .pt-part { width: 100%; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.pt-parts .pt-part:hover { background: var(--color-row-hover); }
+.pt-parts .pt-part:active { background: var(--color-row-press); }
+.pt-sheet__title { margin: 0 0 12px; font-size: 20px; line-height: 1.25; font-weight: var(--weight-bold); letter-spacing: -0.02em; color: var(--color-text-primary); }
+.pt-sheet__part { display: flex; flex-direction: column; gap: var(--pt-gap); }
+
+/* r10: from tablet up the filters flow with the search in one wrapping row (no toolbar of three
+   half-empty lines); phones keep the full-width search + one sideways-scrolling filter row. */
+@media (min-width: 768px) {
+  .pt-toolbar__filters { display: contents; }
+  .pt-toolbar__search { flex: 1 1 240px; }
+}
+
+/* =============================================================================
+   r10 a11y: touch targets on phones (D-25). Every control in the content region is at least
+   44 x 44 css px (--touch-min). Pattern pages get real 44 px controls; the measured reference
+   pages (02, 03) keep their visuals and use an invisible hit area where a control is smaller.
+   ============================================================================= */
+@media (max-width: 767px) {
+  .pt-page .mc-btn, .pt-head__actions .mc-btn, .pt-system .mc-btn, .pt-page .pt-link, .pt-page .mc-daterange__trigger { min-height: var(--touch-min); }
+  .pt-page .mc-btn--icon { min-width: var(--touch-min); }
+  .pt-page .mc-input:not(.mc-input--xl) { --input-h: var(--touch-min); }
+  .pt-seg button { position: relative; height: 38px; }
+  .pt-seg button::after { content: ""; position: absolute; inset: -3px 0; }    /* + the 3 px track padding = 44 */
+  /* a link that stands alone as a value (dd, meta line): taller hit area, same line box */
+  .prx-inline-link, .prx-meta-link, .gd-inline-link, .pb-inline-link, .dok-inline-link, .keu-inline-link { padding: 14px 7px; margin: 0 -7px; }
+}
+
+/* =============================================================================
+   r11: page actions by priority (MCActions) + overflow / row menu (MCMenu).
+   One primary, at most two quiet secondary buttons, everything else in ONE "⋯" menu (destructive
+   last). The open menu is a body-level popover (desktop / tablet) or a bottom action sheet (phone).
+   ============================================================================= */
+.pt-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); min-width: 0; }
+.pt-menu { position: relative; display: inline-flex; flex: none; }
+.pt-menu--phone { display: none; }
+.pt-menu__toggle.mc-btn--icon { width: var(--btn-h); padding: 0; justify-content: center; }
+.pt-menu__toggle.mc-btn--ghost { color: var(--color-text-secondary); }
+.pt-menu__toggle.mc-btn--ghost:hover { color: var(--color-text-primary); }
+.pt-menu__toggle .mc-icon { --icon-n: 20; --icon-stroke-px: 1.8; }
+.pt-menu__chev { transition: transform var(--mc-dur-fast) var(--mc-ease-standard); }
+.pt-menu__toggle:not(.mc-btn--primary)[aria-expanded="true"] { background: var(--color-row-hover); }
+.pt-menu__toggle.mc-btn--primary[aria-expanded="true"] { filter: brightness(.94); }
+.pt-menu__toggle[aria-expanded="true"] .pt-menu__chev { transform: rotate(180deg); }
+
+.pt-menu-layer { position: fixed; inset: 0; z-index: var(--z-popover); pointer-events: none; }
+.pt-menu__panel {
+  position: fixed;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 232px;
+  max-width: min(360px, calc(100vw - 16px));
+  padding: var(--select-menu-pad);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--select-menu-r);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-menu);
+}
+.pt-menu__item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  width: 100%;
+  min-height: var(--select-row-h);
+  padding: 0 var(--select-row-px);
+  border: 0;
+  border-radius: var(--select-row-r);
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: calc(14 * var(--tu));
+  line-height: calc(20 * var(--tu));
+  font-weight: var(--weight-medium);
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--mc-dur-hover) var(--mc-ease-exit);
+}
+.pt-menu__item .mc-icon { --icon-n: 18; --icon-stroke-px: 1.7; flex: none; color: var(--color-text-secondary); }
+.pt-menu__label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pt-menu__hint { display: block; font-size: 12px; line-height: 16px; font-weight: var(--weight-regular); color: var(--color-text-secondary); white-space: normal; }
+.pt-menu__item:hover, .pt-menu__item:focus-visible { background: var(--color-row-hover); outline: none; }
+.pt-menu__item:focus-visible { box-shadow: inset 0 0 0 var(--focus-ring-width) var(--color-focus); }
+.pt-menu__item--danger, .pt-menu__item--danger .mc-icon { color: var(--color-danger-fg); }
+.pt-menu__item--danger:hover, .pt-menu__item--danger:focus-visible { background: var(--color-danger-bg); }
+.pt-menu__item.is-disabled { color: var(--color-text-disabled); cursor: not-allowed; padding-top: 8px; padding-bottom: 8px; }
+.pt-menu__item.is-disabled .mc-icon { color: var(--color-text-disabled); }
+.pt-menu__item.is-disabled:hover { background: transparent; }
+.pt-menu__reason { flex-basis: 100%; padding-left: 30px; font-size: 12px; line-height: 16px; font-weight: var(--weight-regular); color: var(--color-text-secondary); white-space: normal; }
+.pt-menu__sep { height: 1px; margin: 4px 8px; background: var(--color-border-subtle); }
+.pt-menu__title { display: none; }
+.pt-menu__cancel { display: none; }
+
+/* phones: a bottom action sheet (scrim, Esc, Batal) with 48 px rows */
+.pt-menu-layer.is-sheet { z-index: var(--z-sheet); pointer-events: auto; }
+.pt-menu-layer__scrim { position: absolute; inset: 0; background: var(--mc-scrim); }
+.pt-menu-layer.is-sheet .pt-menu__panel {
+  left: 8px;
+  right: 8px;
+  top: auto;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  min-width: 0;
+  max-width: none;
+  max-height: 72vh;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 16px;
+}
+.pt-menu-layer.is-sheet .pt-menu__title { display: block; margin: 6px 10px 6px; font-size: 13px; line-height: 18px; font-weight: var(--weight-semibold); color: var(--color-text-secondary); }
+.pt-menu-layer.is-sheet .pt-menu__item { min-height: 48px; font-size: 15px; white-space: normal; }
+.pt-menu-layer.is-sheet .pt-menu__item.is-disabled { min-height: 56px; }
+.pt-menu-layer.is-sheet .pt-menu__cancel {
+  display: block;
+  min-height: 48px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 15px;
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .pt-menu--phone { display: inline-flex; }
+  .pt-actions__secondary:not(.pt-actions__keep) { display: none; }
+  .pt-head__actions .pt-actions { width: 100%; }
+  .pt-head__actions .pt-actions__primary { flex: 1 1 auto; }
+  /* r11 (D-36, recovery pass): only a filled primary fills the phone row (the Admin's next step); a quiet action
+     (the Owner's execution verb, or the first secondary on a page without a primary) stays compact, right-aligned */
+  .pt-head__actions .pt-actions__keep { flex: 0 0 auto; }
+  .pt-head__actions .pt-actions:not(:has(> .pt-actions__primary)) { justify-content: flex-end; }
+  .pt-head__actions .pt-actions .pt-menu { order: 2; }
+  .pt-menu__toggle.mc-btn--icon { width: var(--touch-min); min-height: var(--touch-min); }
+}
+
+/* r11: "Filter" button + panel (MCFilter). Wide screens: popover under the button with the less used
+   filters; phones: the toolbar is search + Filter, and the sheet holds every filter. */
+.pt-toolbar__more { position: relative; display: flex; flex: none; }
+.pt-toolbar__more[hidden] { display: none; }
+.pt-filterbtn .mc-icon { --icon-n: 18; --icon-stroke-px: 1.7; }
+.pt-filterbtn__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-on-primary, #fff);
+  font-size: 11.5px;
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.pt-filterbtn__count[hidden] { display: none; }
+.pt-filterpanel { position: absolute; top: calc(100% + 6px); right: 0; z-index: var(--z-popover); }
+.pt-filterpanel[hidden] { display: none; }
+.pt-filterpanel__scrim { display: none; }
+.pt-filterpanel__box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 340px;
+  padding: 14px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--select-menu-r);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-menu);
+}
+.pt-filterpanel__title { margin: 0; font-size: 13px; line-height: 18px; font-weight: var(--weight-semibold); color: var(--color-text-secondary); }
+.pt-filterpanel__body { display: flex; flex-direction: column; gap: 8px; }
+.pt-filterpanel__body .pt-filter { flex: none; width: 100%; max-width: none; height: var(--control-md); }
+.pt-filterpanel__body .pt-filter select { flex: 1 1 auto; }
+.pt-filterpanel__foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 2px; }
+@media (max-width: 767px) {
+  .pt-toolbar { flex-direction: row; flex-wrap: nowrap; align-items: center; }
+  .pt-toolbar__search { flex: 1 1 auto; min-width: 0; }
+  .pt-toolbar__filters:empty { display: none; }
+  .pt-filterbtn { min-height: var(--touch-min); padding: 0 12px; }
+  .pt-toolbar.has-more-filters .pt-filterbtn .mc-btn__label { display: inline; }
+  .pt-filterpanel.is-sheet { position: fixed; inset: 0; top: 0; right: 0; z-index: var(--z-sheet); }
+  .pt-filterpanel.is-sheet .pt-filterpanel__scrim { display: block; position: absolute; inset: 0; background: var(--mc-scrim); }
+  .pt-filterpanel.is-sheet .pt-filterpanel__box {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .pt-filterpanel.is-sheet .pt-filterpanel__title { font-size: 16px; line-height: 22px; color: var(--color-text-primary); font-weight: var(--weight-bold); }
+  .pt-filterpanel.is-sheet .pt-filter { height: var(--touch-min); }
+  .pt-filterpanel.is-sheet .pt-filterpanel__foot .mc-btn { min-height: var(--touch-min); }
+  .pt-filterpanel.is-sheet .pt-filterpanel__foot .mc-btn--primary { flex: 1 1 auto; }
+}
+
+/* r11 (D-27): breadcrumbs list the ancestors only (no "Kembali" duplicate, no current page); a
+   top-level page has none. */
+.mc-crumbs[hidden] { display: none; }
+.mc-crumbs__lead { flex: none; margin-right: 10px; color: var(--color-text-tertiary); }
+
+/* r11 (D-28): a metric strip is ONE surface with hairline dividers instead of N separate cards
+   (less card soup, aligned edges, one rhythm). Each cell draws its left + top hairline; the strip
+   clips the outer ones, so wrapped rows and empty tracks never show stray lines. */
+.pt-metrics {
+  gap: 0;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.pt-metrics > .pt-metric,
+.pt-metrics > .pt-metric.mc-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: -1px 0 0 var(--color-border-subtle), 0 -1px 0 var(--color-border-subtle);
+  padding: 14px 18px;
+}
+.pt-metrics > a.pt-metric:hover { background: var(--color-row-hover); box-shadow: -1px 0 0 var(--color-border-subtle), 0 -1px 0 var(--color-border-subtle); }
+@media (max-width: 767px) {
+  .pt-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+  .pt-metrics > .pt-metric, .pt-metrics > .pt-metric.mc-card { padding: 12px 14px; }
+  .pt-metrics > .pt-metric:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+
+/* r11 (D-29): tab row + "Bagian Lain" overflow (tablet / desktop, glossary GL-188) */
+.pt-tabbar { display: flex; align-items: stretch; min-width: 0; }
+.pt-tabbar > .pt-tabs { flex: 1 1 auto; min-width: 0; }
+.pt-tab[hidden] { display: none; }
+.pt-tabmore { display: flex; align-items: center; flex: none; padding-left: 4px; border-bottom: 1px solid var(--color-border); }
+.pt-tabmore[hidden] { display: none; }
+.pt-tabmore .pt-menu__toggle { height: 36px; min-height: 36px; padding: 0 10px; color: var(--color-text-secondary); font-weight: var(--weight-medium); }
+/* r11: header overflow trigger = text "Tindakan Lain ▾" (≥768, glossary GL-187); ⋯ on phones; tablet shows 1 secondary */
+.pt-menu__compact { display: none; }
+.pt-menu--narrow { display: none; }
+@media (max-width: 1024px) {
+  .pt-menu--narrow { display: inline-flex; }
+  .pt-actions__secondary--2:not(.pt-actions__keep) { display: none; }
+}
+@media (max-width: 767px) {
+  .pt-actions__more .pt-menu__toggle { width: var(--touch-min); min-height: var(--touch-min); padding: 0; justify-content: center; }
+  .pt-actions__more .pt-menu__compact { display: block; }
+  .pt-actions__more .mc-btn__label, .pt-actions__more .pt-menu__chev { display: none; }
+}
+
+/* r11 (D-30): page container modes (set on <html data-container> from the route archetype). The
+   header and the page body share one left-anchored column, so large screens get a composed page instead
+   of 1600 px wide forms; 1366-class laptops are narrower than every cap. Pages without .pt-page
+   (the measured reference pages 01-04) are not affected. */
+:root { --pt-container: none; }
+[data-container="data"] { --pt-container: 1680px; }
+[data-container="standard"] { --pt-container: 1440px; }
+[data-container="settings"] { --pt-container: 1280px; }
+[data-container="form"] { --pt-container: 1120px; }
+[data-container="focused"] { --pt-container: 960px; }
+.mc-content:has(> .pt-page) > .mc-page-head,
+.mc-content > .pt-page {
+  width: 100%;
+  max-width: var(--pt-container);
+  margin-left: 0;                  /* left-anchored: the title edge stays on the top-bar edge on every page */
+  margin-right: auto;
+}
+/* the sticky action bar's content lines up with the page column on large screens */
+@media (min-width: 768px) {
+  [data-container="data"] .pt-actionbar, [data-container="standard"] .pt-actionbar, [data-container="settings"] .pt-actionbar,
+  [data-container="form"] .pt-actionbar, [data-container="focused"] .pt-actionbar {
+    padding-left: var(--shell-content-pad-l, 32px);
+    padding-right: max(var(--shell-content-pad-r, 32px), calc(var(--shell-content-pad-r, 32px) + (100vw - var(--shell-sidebar-w, 264px) - var(--shell-content-pad-l, 32px) - var(--shell-content-pad-r, 32px) - var(--pt-container))));
+  }
+}
+
+/* r11: one left edge. Pattern pages align the header (crumbs, title, meta) with the toolbar and card
+   edges (the 9 px inset is the 03 reference measurement and stays on 01-04), and the header ->
+   first block gap is the page gap. */
+.mc-content:has(> .pt-page) > .mc-page-head { padding-left: 0; }
+.pt-page { margin-top: var(--pt-gap); }
+/* fact lists: the label column stops growing on wide cards (values no longer float 300 px away) */
+@media (min-width: 768px) { .pt-kv { grid-template-columns: minmax(112px, min(38%, 200px)) minmax(0, 1fr); } }   /* phones keep the stacked label-over-value */
+@media (min-width: 768px) {
+  .pt-toolbar__search { flex: 1 1 220px; max-width: 380px; }
+}
+/* phones: a header whose only control is the overflow menu keeps it on the title row (top right)
+   instead of spending a full row on one button */
+@media (max-width: 767px) {
+  .pt-head__row:has(.pt-actions > .pt-menu:only-child) { flex-direction: row; align-items: flex-start; }
+  .pt-head__row:has(.pt-actions > .pt-menu:only-child) .pt-head__actions { width: auto; margin-top: 2px; }
+  .pt-head__row:has(.pt-actions > .pt-menu:only-child) .pt-head__actions .pt-actions { width: auto; }
+  /* task / form routes: the sticky action bar replaces the bottom navigation while it is shown
+     (03 does the same for its own .pur-footer, components.css) */
+  body:has(.pt-actionbar:not([hidden])) .mc-bottom-nav { display: none; }
+  body:has(.pt-actionbar:not([hidden])) .pt-actionbar { bottom: 0; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+  body:has(.pt-actionbar:not([hidden])) .pt-has-actionbar { padding-bottom: calc(96px + var(--safe-bottom, 0px)) !important; }
+}
+
+/* r11 (D-31): "Perlu tindakan" (MCUI.signals). Tone dot + condition (strong) + quiet meta line; the
+   row is the link; top 3 visible, the rest open in place. */
+.pt-signals__count { flex: none; min-width: 24px; height: 24px; padding: 0 8px; border-radius: var(--radius-full); background: var(--color-warning-bg); color: var(--color-warning-fg); font-size: 12.5px; font-weight: var(--weight-bold); line-height: 24px; text-align: center; font-variant-numeric: tabular-nums; }
+.pt-signal { min-height: 52px; }
+.pt-signal .pt-row__main { position: relative; padding-left: 18px; }
+.pt-signal .pt-row__main::before { content: ""; position: absolute; left: 0; top: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--color-info-dot); }
+.pt-signal--danger .pt-row__main::before { background: var(--color-danger-dot); }
+.pt-signal--warning .pt-row__main::before { background: var(--color-warning-dot); }
+.pt-signal--pending .pt-row__main::before { background: var(--color-pending-dot, var(--color-warning-dot)); }
+.pt-signal__title { color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.pt-signal__meta { color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); overflow-wrap: anywhere; }
+.pt-signals__foot { padding: 4px var(--card-padding) 10px; }
+.pt-signals__foot .pt-link .mc-icon { transition: transform var(--mc-dur-fast) var(--mc-ease-standard); }
+.pt-signals__foot [aria-expanded="true"] .mc-icon { transform: rotate(180deg); }
+.pt-signals--flat .pt-signal { padding-left: 0; padding-right: 0; }
+@media (min-width: 1025px) { .pt-signal { max-width: none; } }
+
+/* r11: header row wraps as a unit (the action cluster drops under the title instead of squeezing a
+   record-number title into a mid-token break); titles break only at the <wbr> after '/' */
+@media (min-width: 768px) {
+  .pt-head__row { flex-wrap: wrap; row-gap: 10px; }
+  .pt-head__text { flex: 1 1 360px; }
+  .pt-head__actions { margin-left: auto; }
+}
+.pt-head__row .mc-page-head__title { overflow-wrap: break-word; }
+/* list-detail split: the shorter column sticks (patterns.js splitSticky), not always the detail */
+.pt-split__detail { position: static; }
+.pt-split > .is-sticky { position: sticky; top: 16px; }
+
+/* r11: calmer type and a clear header -> body gap. Filter values are not headings (500, not 600);
+   metric values are strong but not page-title strength; the header block ends with a real gap so its
+   buttons never read as part of the toolbar below. */
+.pt-filter select { font-weight: var(--weight-medium); }
+.pt-metric__value { font-weight: var(--weight-semibold); }
+@media (min-width: 768px) { .pt-page { margin-top: max(18px, var(--pt-gap)); } }
+.pt-menu-layer.is-sheet .pt-menu__cancel { text-align: center; width: 100%; }
+/* r11: a wrapped meta line never ends with a dangling separator (phones: the gap separates) */
+@media (max-width: 767px) { .pt-head__meta .pt-sep { display: none; } }
+
+/* r11 shared requests from the module units */
+.pt-head__actions:empty { display: none; }
+button.pt-link { border: 0; background: transparent; font-family: inherit; cursor: pointer; }
+.pt-tab__short { display: none; }
+@media (max-width: 767px) {
+  .pt-tab:has(.pt-tab__short) .pt-tab__long { display: none; }
+  .pt-tab__short { display: inline; }
+}
+.pt-menu__label { flex: 1 1 0; }
+.pt-result-note { min-width: 0; overflow: hidden; color: var(--color-text-secondary); font-size: var(--text-label-size); white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) { .pt-toolbar__end:not(:has(> :not(.pt-result-note))) { display: none; } }
+/* in-card list toolbar (a toolbar that filters one section's list, under its head) */
+.pt-section__toolbar { padding: 0 var(--card-padding) 12px; }
+.pt-section__toolbar .pt-toolbar { margin: 0; }
+/* metric strip variants (D-28): filter toggle, link tile, quiet zero, current cell */
+.pt-metrics > button.pt-metric { border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.pt-metrics > .pt-metric[aria-pressed="true"] { background: var(--color-surface-tint, #f4f6ec); box-shadow: inset 0 -2px 0 var(--color-primary), -1px 0 0 var(--color-border-subtle), 0 -1px 0 var(--color-border-subtle); }
+/* a strip tied to tabs marks the current cell quietly (a 2 px top rule, no fill): one selected indicator, the tab */
+.pt-metrics > .pt-metric.is-current { box-shadow: inset 0 2px 0 var(--color-primary), -1px 0 0 var(--color-border-subtle), 0 -1px 0 var(--color-border-subtle); }
+.pt-metrics > .pt-metric--link .pt-metric__label { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pt-metrics > .pt-metric--link .pt-metric__label::after { content: ""; flex: none; width: 6px; height: 6px; margin-right: 3px; border-top: 1.6px solid currentColor; border-right: 1.6px solid currentColor; transform: rotate(45deg); opacity: .55; }
+.pt-metrics > .pt-metric--zero .pt-metric__value { color: var(--color-text-tertiary); font-weight: var(--weight-medium); }
+
+/* r11 (D-39): module sub-navigation under the page header (quiet underline links, not buttons) */
+.pt-subnav { display: flex; align-items: stretch; gap: 22px; margin-top: 12px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--color-border-subtle); }
+.pt-subnav::-webkit-scrollbar { display: none; }
+.pt-subnav[hidden] { display: none; }
+.pt-subnav__link { position: relative; display: inline-flex; align-items: center; flex: none; min-height: 38px; color: var(--color-text-secondary); font-size: var(--text-body-size); font-weight: var(--weight-medium); text-decoration: none; white-space: nowrap; }
+.pt-subnav__link:hover { color: var(--color-text-primary); }
+.pt-subnav__link[aria-current="page"] { color: var(--color-text-primary); font-weight: var(--weight-semibold); }
+.pt-subnav__link[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--color-primary); }
+@media (max-width: 767px) { .pt-subnav { gap: 18px; margin-top: 10px; } .pt-subnav__link { min-height: var(--touch-min); } }
+
+/* r11 shared requests, batch 3 */
+.pt-system { margin-top: clamp(4vh, 22vh - 40px, 22vh); }          /* optical placement (~25 % of the content area) */
+.pt-col-chev { width: 36px; padding-left: 0 !important; text-align: right; color: var(--color-text-tertiary); }
+.pt-col-chev .mc-icon { --icon-n: 16; width: 16px; max-width: none; }
+@media (max-width: 767px) { .pt-phone-hide { display: none !important; } }
+.pt-signal--pending .pt-row__main::before { background: transparent; box-shadow: inset 0 0 0 2px var(--color-pending-dot); }
+.pt-section .pt-table th:first-child, .pt-section .pt-table td:first-child { padding-left: var(--card-padding); }
+.pt-section .pt-table th:last-child, .pt-section .pt-table td:last-child { padding-right: var(--card-padding); }
+.pt-section__head:not(:has(.pt-section__sub)) { min-height: 48px; }
+@media (min-width: 768px) { .pt-toolbar .pt-filter--company select { field-sizing: content; } .pt-toolbar .pt-filter--company { max-width: 340px; } }   /* the company view sizes to its label on wide screens */
+.pt-section__foot--text { display: block; }
+.pt-link--hit { position: relative; }
+@media (max-width: 767px), (pointer: coarse) { .pt-link--hit::after { content: ""; position: absolute; inset: -14px -4px; } }
+.pt-sheet__back--close { margin-left: auto; }
+
+/* r11 shared requests, batch 4: list head, two-line phone titles, quiet secondary cell */
+.pt-listhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 8px var(--card-padding); }
+.pt-listhead__count { color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-variant-numeric: tabular-nums; }
+.pt-listhead__sort { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.pt-rows--wrap .pt-row__title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; overflow: hidden; }
+.pt-cell__title--quiet { font-weight: var(--weight-regular); }
+
+/* r11 shared requests, batch 5 */
+@media (max-width: 767px) {
+  .pt-notice { grid-template-columns: 20px minmax(0, 1fr); }
+  .pt-notice__actions { grid-column: 2 / -1; justify-self: start; }
+  .pt-notice > span:empty:last-child { display: none; }
+}
+.pt-parts + .pt-drill__first { margin-top: var(--pt-gap); }
+.pt-filterpanel__note { margin: 2px 0 0; color: var(--color-text-secondary); font-size: 12.5px; line-height: 17px; }
+.pt-filter:has(select:disabled) { opacity: .6; }
+/* (r11: a container-query stacking of .pt-kv was tried and removed: modules with their own kv grids broke) */
+.pt-toolbar__end.is-wrapped { display: none; }
+.pt-nowrap { white-space: nowrap; }
+
+/* r11 shared requests, batch 7 */
+.pt-listhead[hidden] { display: none; }
+.pt-listhead__sort select { field-sizing: content; }
+@media (max-width: 767px) {
+  .pt-listhead { padding-left: var(--m-card-pad, 16px); padding-right: var(--m-card-pad, 16px); }
+  .pt-actions--desk, .pt-head__actions:has(> .pt-actions--desk) { display: none !important; }
+  .pt-notice--inline { grid-template-columns: 20px minmax(0, 1fr) auto; }
+  .pt-notice--inline .pt-notice__actions { grid-column: auto; justify-self: end; }
+  .pt-seg--fill { display: flex; width: 100%; }
+  .pt-seg--fill button { flex: 1 1 0; }
+}
+.pt-kv--stack { grid-template-columns: minmax(0, 1fr) !important; }
+.pt-kv--stack > dt { padding: 10px 0 0; border-bottom: 0; font-size: 12px; }
+.pt-kv--stack > dd { padding: 2px 0 10px; }
+
+/* r11 shared requests, batch 8: the toolbar ends on the card edge ([search][filters] ... [count][Filter]) */
+@media (min-width: 768px) {
+  .pt-toolbar__end { order: 5; margin-left: auto; }
+  .pt-toolbar__more { order: 6; margin-left: auto; }
+  .pt-toolbar:has(> .pt-toolbar__end:not(.is-wrapped)) > .pt-toolbar__more { margin-left: 0; }
+  .pt-toolbar .pt-filter--company { flex: 0 0 auto; }
+}
+@media (max-width: 767px) { .pt-tab { padding: 0 9px; min-width: 44px; } }   /* a short label ("Stok") still gets a 44 px target */
+/* sub-nav links and quiet text actions keep a 44 px target on phones (D-25) */
+.pt-subnav { gap: 6px; margin-left: -10px; }
+.pt-subnav__link { padding: 0 10px; }
+.pt-subnav__link[aria-current="page"]::after { left: 10px; right: 10px; }
+@media (max-width: 767px) { .pt-page .pt-link, .pt-notice .pt-link { min-width: var(--touch-min); justify-content: center; } }
+
+/* r11 final review: page-level tab rows start on the common left edge; a signal without meta is compact */
+.pt-page > .pt-tabbar .pt-tab:first-child, .pt-page > div > .pt-tabbar .pt-tab:first-child { padding-left: 0; }
+.pt-page > .pt-tabbar .pt-tab:first-child[aria-selected="true"]::after, .pt-page > div > .pt-tabbar .pt-tab:first-child[aria-selected="true"]::after { left: 0; }
+.pt-signal:not(:has(.pt-signal__meta)) { min-height: 44px; }
+
+/* r11 final review, batch 2 */
+/* phones: one sheet anatomy (menu and filter sheets share the title style) */
+.pt-menu-layer.is-sheet .pt-menu__title { margin: 6px 10px 8px; font-size: 16px; line-height: 22px; font-weight: var(--weight-bold); color: var(--color-text-primary); }
+@media (max-width: 767px) {
+  /* sticky form bar: [Batal ~96][primary fills] on every form */
+  .pt-actionbar .mc-btn { flex: 0 0 auto; min-width: 96px; }
+  .pt-actionbar .mc-btn--primary { flex: 1 1 auto; }
+  /* a QUIET primary (Owner emphasis, D-36) is not stretched into the loudest control; the row aligns right */
+  .pt-head__actions .pt-actions:has(> .pt-actions__primary.mc-btn--outline) { justify-content: flex-end; }
+  .pt-head__actions .pt-actions__primary.mc-btn--outline { flex: 0 0 auto; }
+  /* sub-nav: full-bleed scroll with a gutter, and the same y on every sibling page (before the actions) */
+  .pt-subnav { margin-left: calc(-1 * var(--m-gutter, 20px)); margin-right: calc(-1 * var(--m-gutter, 20px)); padding-left: calc(var(--m-gutter, 20px) - 10px); padding-right: calc(var(--m-gutter, 20px) - 10px); scroll-padding-inline: 10px; }
+  .mc-page-head:has(> .pt-subnav:not([hidden])) { display: flex; flex-direction: column; }
+  .mc-page-head:has(> .pt-subnav:not([hidden])) > .pt-head__row { display: contents; }
+  .mc-page-head:has(> .pt-subnav:not([hidden])) .pt-head__text { order: 1; }
+  .mc-page-head:has(> .pt-subnav:not([hidden])) > .pt-subnav { order: 2; }
+  .mc-page-head:has(> .pt-subnav:not([hidden])) .pt-head__actions { order: 3; margin-top: 12px; }
+  /* inline / meta links in running content get a 44 px tall hit area without growing the line box (D-25) */
+  .pt-head__meta a, .pt-row__meta a, .pt-kv dd a, .pt-cell__sub a, a[class*="-inline-link"], a[class*="-meta-link"], .pt-notice a:not(.mc-btn) { padding: 14px 7px; margin: -14px -7px; }
+  /* the confirmation summary keeps label | value columns on phones */
+  .mc-modal__summary { grid-template-columns: minmax(0, 40%) minmax(0, 1fr) !important; }
+}
+/* status first in a wrapping meta line on narrow screens (no orphaned pill on its own row) */
+@media (max-width: 1024px) { .pt-head__meta .mc-pill { order: -1; } }
+
+/* r11: MCDateField, the MC single-date field (promoted from 03 Buat Pembelian; 65 and 98 use it) */
+.pt-datefield { position: relative; }
+.pt-datefield__btn { padding: 0; border-top: 0; border-bottom: 0; border-left: 0; border-radius: calc(var(--input-r, 8px) - 1px) 0 0 calc(var(--input-r, 8px) - 1px); background: transparent; cursor: pointer; transition: background-color var(--mc-dur-fast) var(--mc-ease-exit); }
+.pt-datefield__btn:hover { background: var(--color-canvas); transition-duration: var(--mc-dur-instant); }
+.pt-datefield__btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+.pt-datefield__btn .mc-icon { --icon-n: 18; --icon-stroke-px: 1.6; color: var(--color-icon-field, var(--color-text-tertiary)); }
+.pt-datefield .mc-input__addon { margin-right: -1px; }
+.pt-datefield .mc-input__control { min-width: 0; cursor: pointer; font-variant-numeric: tabular-nums; }
+.pt-datefield .mc-input__control:not([readonly]) { cursor: text; }
+.pt-datefield__native { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; pointer-events: none; }
+.pt-timefield input[type="time"] { cursor: text; font-variant-numeric: tabular-nums; }
+.pt-timefield input[type="time"]::-webkit-calendar-picker-indicator { display: none; }   /* the clock addon on the left replaces it */
+/* r11 (recovery pass): a page-level tab row is followed by its content one 12 px step lower on every page.
+   A panel that opens with a card (11, 21, 62) no longer touches the tab rule; a panel that opens with its
+   toolbar keeps the toolbar's own step. */
+@media (min-width: 768px) {
+  .pt-tabbar + .pt-tabpanel:not([hidden]):not(:has(> .pt-toolbar:first-child)) { padding-top: var(--space-3, 12px); }
+}
+
+/* =============================================================================
+   r13 (R13_SPEC §7): MCMedia image slots. A thumbnail is a FIXED square slot (object-fit cover, 8 px radius,
+   1 px subtle edge drawn above the image) that never changes the height of the row it sits in: in a table cell
+   it overhangs the cell padding by 4 px (layout box 32 px, painted 40 px); a phone row (min 60 px, padding 10)
+   holds 40 px exactly. A missing image is a calm tile with a glyph (aria-label "Belum ada foto"), never the
+   browser's broken-image icon. The large record image sits in a 4:3 frame of the same family.
+   ============================================================================= */
+.mc-thumb {
+  --thumb-size: 40px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: #f1f1ed;
+  vertical-align: middle;
+}
+.mc-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(15, 16, 20, .075);
+  pointer-events: none;
+}
+.mc-thumb__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mc-thumb--empty { background: var(--color-surface-sunken); }
+.mc-thumb--empty::after { box-shadow: inset 0 0 0 1px rgba(15, 16, 20, .06); }
+.mc-thumb__glyph { --icon-n: 18; --icon-stroke-px: 1.5; color: var(--color-text-disabled); }
+.mc-thumb--56 .mc-thumb__glyph, .mc-thumb--64 .mc-thumb__glyph { --icon-n: 22; }
+.mc-thumb--56, .mc-thumb--64 { border-radius: var(--radius-lg); }
+
+/* a table cell that leads with a thumb: the thumb overhangs the 8 px cell padding, the row keeps its height */
+.pt-media-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.pt-media-cell > .mc-thumb { margin: -4px 0; }
+.pt-media-cell > .pt-cell { flex: 1 1 auto; }
+
+/* phone row with a leading slot */
+.pt-row.has-lead { grid-template-columns: var(--thumb-size, 40px) minmax(0, 1fr) auto; }
+.pt-row.has-lead.has-chevron { grid-template-columns: var(--thumb-size, 40px) minmax(0, 1fr) auto 18px; }
+.pt-row__lead { display: flex; }
+
+/* the record's large image: 4:3 frame */
+.mc-media-frame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: #f1f1ed;
+}
+.mc-media-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(15, 16, 20, .07);
+  pointer-events: none;
+}
+.mc-media-frame__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mc-media-frame__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 0 0 1px rgba(15, 16, 20, .06);
+  color: var(--color-text-strong);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: var(--weight-semibold);
+}
+.mc-media-frame--empty { background: var(--color-surface-sunken); }
+.mc-media-frame__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  text-align: center;
+}
+.mc-media-frame__glyph { --icon-n: 28; --icon-stroke-px: 1.5; margin-bottom: 6px; color: var(--color-text-disabled); }
+.mc-media-frame__label { color: var(--color-text-secondary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.mc-media-frame__note { max-width: 32ch; color: var(--color-text-tertiary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+/* a record header that leads with its photo (31 Detail Stok Produk): 56 px thumb beside the title + meta */
+.pt-head__text--media { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; align-items: center; }
+.pt-head__text--media > .pt-head__media { grid-row: 1 / span 2; display: flex; }
+.pt-head__text--media > :not(.pt-head__media) { grid-column: 2; min-width: 0; }
+@media (max-width: 767px) { .pt-head__text--media { column-gap: 12px; } }
+
+/* =============================================================================
+   r13 pilot - staged composer (one active task stage + always-available preview), compact identity,
+   wider preview, one column head for line items. Generic: any template that declares `stages`.
+   ============================================================================= */
+/* preview share: the paper is the second subject of the page, so it gets the larger column (Owner pilot: the
+   preview looked cramped; R13 brief s.52 allows 40/60). 1366 -> sheet about 0.87 (about 9.6 px text), 1440 about 0.93. */
+@media (min-width: 1280px) { .pt-compose { --compose-preview: 52%; } }
+@media (min-width: 1366px) { .pt-compose { --compose-preview: 55%; } }
+@media (min-width: 1600px) { .pt-compose { --compose-preview: 50%; } }
+.pt-compose__toolbar { padding: 8px 10px 8px 16px; }
+
+/* the active stage lives on ONE surface: sections are bands of the same card, separated by hairlines */
+.pt-compose [data-stage][hidden] { display: none !important; }
+.pt-compose.is-staged .pt-compose__sections { gap: 0; overflow: hidden; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.pt-compose.is-staged .pt-compose__sections > .pt-compose__section,
+.pt-compose.is-staged .pt-compose__sections > .pt-compose__raw > .mc-card { border-radius: 0; background: transparent; box-shadow: none; }
+.pt-compose.is-staged .pt-compose__sections > :not([hidden]) ~ :not([hidden]) { border-top: 1px solid var(--pt-head-rule, var(--pt-row-divider)); }
+.pt-compose.is-staged .pt-compose__section > .pt-section__head { padding-top: 18px; }
+
+/* compact identity: one line on the canvas (no card); the carried data opens on demand */
+.pt-compose.is-staged .pt-compose__id { padding: 0; border: 0; background: none; box-shadow: none; border-radius: 0; }
+.pt-compose__id--compact .pt-compose__idhead { flex-wrap: wrap; }
+.pt-compose__iddetails { margin-top: 6px; }
+.pt-compose__idsummary { display: flex; align-items: center; gap: 10px; min-height: 32px; cursor: pointer; list-style: none; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__idsummary::-webkit-details-marker { display: none; }
+.pt-compose__idsummary > span:first-child { flex: none; color: var(--color-text-primary); font-weight: var(--weight-medium); }
+.pt-compose__idsumtext { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt-compose__idchev { --icon-n: 16; flex: none; color: var(--color-text-tertiary); transition: transform var(--mc-dur-moderate, 200ms) var(--mc-ease-standard, ease); }
+.pt-compose__iddetails[open] .pt-compose__idchev { transform: rotate(180deg); }
+.pt-compose__iddetails[open] .pt-compose__idrows { margin-top: 8px; padding: 14px 16px; border-radius: var(--radius-md); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.pt-compose__iddetails .pt-compose__src { margin: 10px 0 2px; }
+.pt-compose__idsummary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .pt-compose__idchev { transition: none; } }
+
+/* the stage navigator is the shared workflow navigator (.mc-flow + .mc-stepper--inline, components.css; r13 harmony) */
+.pt-compose__progress--stages { padding: 0; border-radius: 0; background: none; box-shadow: none; }
+.pt-stages__hint { margin: 10px 0 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+
+/* Pemeriksaan: what to fix first, then the facts to compare with the paper, then what the issue does */
+.pt-compose.is-staged [data-section="pemeriksaan"] .pt-section__body { display: flex; flex-direction: column; gap: 16px; }
+.pt-compose.is-staged [data-section="pemeriksaan"] [data-compose-checks] { order: 1; }
+.pt-compose__review { order: 2; }
+.pt-compose__reviewinfo { order: 3; }
+.pt-compose__review[hidden] { display: none; }
+.pt-compose__facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 24px; margin: 0; padding: 14px 0 0; border-top: 1px solid var(--pt-row-divider); }
+.pt-compose__facts > div { display: contents; }
+.pt-compose__facts dt { color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-body-lh); }
+.pt-compose__facts dd { margin: 0; min-width: 0; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.pt-compose__reviewinfo .pt-compose__info { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-sunken); color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-compose__reviewinfo .pt-compose__info strong { color: var(--color-text-primary); font-weight: var(--weight-semibold); }
+.pt-compose__reviewinfo .pt-compose__info strong.is-blocking { color: var(--color-danger-fg); }
+
+/* line items: ONE column head instead of three labels on every row (labels stay for assistive tech) */
+.pt-clines__head { display: none; }
+.pt-compose.is-staged .pt-clines__head { display: grid; grid-template-columns: minmax(96px, 120px) minmax(124px, 156px) minmax(112px, 136px); gap: 0 12px; justify-content: start;
+  padding: 10px var(--card-padding) 8px calc(var(--card-padding) + 54px); border-top: 1px solid var(--pt-row-divider); color: var(--color-text-tertiary); font-size: 12px; line-height: 16px; font-weight: var(--weight-medium); }
+.pt-compose.is-staged .pt-clines__head + .pt-clines { border-top: 0; }
+.pt-compose.is-staged .pt-cline__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pt-compose.is-staged .pt-cline { padding-top: 12px; padding-bottom: 12px; gap: 8px 14px; }
+@container (min-width: 700px) {
+  .pt-compose.is-staged .pt-clines__head { grid-template-columns: 104px 136px 120px 116px; justify-content: end; padding-left: var(--card-padding); }
+  .pt-compose.is-staged .pt-clines__head::after { content: "Nilai"; text-align: right; }
+}
+/* phones: the line fields stack differently (qty + price, then tax), so each field keeps its own label and the column
+   head goes; the stage navigator stays on one line (its notes live in Pemeriksaan); the primary drops its chevron so
+   "Simpan Draf" and the next step share one row above the keyboard-safe action bar */
+@media (max-width: 767px) {
+  .pt-compose.is-staged .pt-clines__head { display: none; }
+  .pt-compose.is-staged .pt-clines__head + .pt-clines { border-top: 1px solid var(--pt-row-divider); }
+  .pt-compose.is-staged .pt-cline__label { position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; }
+  .pt-compose__bar [data-compose-next] .mc-icon { display: none; }
+}
+
+/* =============================================================================
+   r13 compact - numbered lists + pagination (MCPager / MCList { number, paging }). The number is a quiet display
+   position (tabular figures, secondary ink), never a link, never a badge.
+   ============================================================================= */
+.pt-table .pt-col-no { width: 56px; padding-right: 4px; text-align: right; white-space: nowrap; }
+.pt-section .pt-table th.pt-col-no:first-child, .pt-section .pt-table td.pt-col-no:first-child { padding-left: var(--card-padding); }
+.pt-table th.pt-col-no + th, .pt-table td.pt-col-no + td { padding-left: 16px; }
+.pt-no { color: var(--color-text-tertiary); font-size: var(--text-label-size); line-height: var(--text-body-lh); font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; }
+.pt-row__no { display: inline-block; width: 28px; margin-right: 6px; color: var(--color-text-tertiary); font-size: var(--text-label-size); font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; text-indent: 0; }
+/* hanging indent: a wrapped title and the meta line align with the title text, never under the number */
+.pt-rows--numbered .pt-row__title { padding-left: 34px; text-indent: -34px; }
+.pt-rows--numbered .pt-row__meta { padding-left: 34px; }
+.pt-rows--numbered .pt-row__meta > :first-child { margin-left: 0; }
+
+.pt-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px var(--card-padding); border-top: 1px solid var(--pt-row-divider); }
+.pt-pager__range { margin: 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); font-variant-numeric: tabular-nums; }
+.pt-pager__range strong { color: var(--color-text-primary); font-weight: var(--weight-semibold); }
+.pt-pager__controls { display: flex; align-items: center; gap: 8px 10px; }
+.pt-pager__page { color: var(--color-text-tertiary); font-size: var(--text-label-size); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pt-pager__size { display: inline-flex; align-items: center; gap: 6px; color: var(--color-text-tertiary); font-size: var(--text-label-size); }
+.pt-pager__size select { height: 32px; padding: 0 26px 0 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text-primary); font: inherit; font-size: var(--text-label-size); }
+.pt-pager__btn[disabled] { opacity: .45; cursor: default; }
+@media (max-width: 767px) {
+  .pt-pager { padding: 12px var(--m-card-pad, 16px); }
+  .pt-pager__size, .pt-pager__page { display: none; }
+  .pt-pager__btn .mc-btn__label { display: none; }
+  .pt-pager__btn { min-width: 44px; min-height: 44px; justify-content: center; }
+}
+/* r13 compact: Pemeriksaan stays calm when ready — passed checks fold into one quiet line */
+.pt-compose__okdetails { margin-top: 4px; }
+.pt-compose__okdetails > summary { display: inline-flex; cursor: pointer; list-style: none; font-size: var(--text-label-size); }
+.pt-compose__okdetails > summary::-webkit-details-marker { display: none; }
+.pt-compose__okdetails[open] > summary { margin-bottom: 6px; }
+.pt-compose.is-staged .pt-checks.is-clear .pt-checks__summary { color: var(--color-success-fg); font-weight: var(--weight-semibold); }
+.pt-compose__reviewinfo [data-compose-count] { display: none; }     /* staged: the checks list says it; the cue stays */
+.pt-compose__detailsbtn { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin: 2px 0 4px; font-size: var(--text-body-size); }
+.pt-compose__detailschev { --icon-n: 16; transition: transform var(--mc-dur-moderate, 200ms) var(--mc-ease-standard, ease); }
+.pt-compose__detailsbtn[aria-expanded="true"] .pt-compose__detailschev { transform: rotate(90deg); }
+.pt-compose [data-compose-more][hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .pt-compose__detailschev { transition: none; } }
+
+/* =============================================================================
+   r13 harmony - ONE workspace for a staged composer (Owner visual rejection of the compact pass)
+   Reading order: identity (page head + ONE context line above both panels) -> the active stage (editor card whose
+   top band is the workflow navigator) beside the paper (preview card whose top band is its toolbar) -> the action bar.
+   Both cards start on the same line and their bands share one height (--compose-band-h), so the two panels read as
+   one composed workspace instead of a stack of boxes. Sections inside the editor card are bands, not cards.
+   ============================================================================= */
+.pt-compose { --compose-band-h: 52px; }
+.pt-compose__work { display: contents; }
+.pt-compose.is-staged .pt-compose__work { display: block; min-width: 0; overflow: hidden; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.pt-compose.is-staged .pt-compose__sections { overflow: visible; border-radius: 0; background: none; box-shadow: none; }
+.pt-compose.is-staged .pt-compose__flow { --flow-h: var(--compose-band-h); }
+.pt-compose.is-staged .pt-stages__hint { margin: 0; padding: 16px var(--card-padding) 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); max-width: 68ch; }
+.pt-compose.is-staged .pt-compose__sections > :not([hidden]):first-child > .pt-section__head,
+.pt-compose.is-staged .pt-compose__sections > [hidden] + :not([hidden]) > .pt-section__head { padding-top: 14px; }
+/* the stepper names the stage, so the Pemeriksaan section does not repeat it as a visible title (kept for assistive
+   tech and as the focus target after a refused issue) */
+.pt-compose.is-staged [data-section="pemeriksaan"] > .pt-section__head { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; padding: 0; }
+.pt-compose.is-staged [data-section="pemeriksaan"] > .pt-section__body { padding-top: 14px; }
+/* the preview toolbar is the twin band: same height, same tone */
+.pt-compose__toolbar { min-height: calc(var(--compose-band-h) + 1px); padding-top: 0; padding-bottom: 0; background: color-mix(in srgb, var(--color-surface-sunken) 62%, var(--color-surface)); }
+.pt-compose__toolbar .pt-compose__zoom { background: var(--color-surface-sunken); }
+/* the active stage appears with a short fade (content swap, not motion for its own sake) */
+.pt-compose.is-staged .pt-compose__sections > [data-stage]:not([hidden]) { animation: pt-stage-in var(--mc-dur-moderate, 200ms) var(--mc-ease-standard, ease) both; }
+@keyframes pt-stage-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .pt-compose.is-staged .pt-compose__sections > [data-stage]:not([hidden]) { animation: none; } }
+
+/* identity ONCE: a single context line above both panels (status - company - carried project data on demand) */
+.pt-compose.is-staged > .pt-compose__lead { margin: 0 0 16px; }
+.pt-compose.is-staged > .pt-compose__lead .pt-compose__id--compact { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 0; padding: 0; }
+.pt-compose.is-staged > .pt-compose__lead .pt-compose__idhead { min-height: 32px; }
+.pt-compose.is-staged > .pt-compose__lead .pt-compose__iddetails { margin: 0 0 0 16px; padding-left: 16px; border-left: 1px solid var(--color-border); }
+.pt-compose.is-staged > .pt-compose__lead .pt-compose__iddetails[open] { flex: 1 1 100%; margin-left: 0; padding-left: 0; border-left: 0; }
+@media (max-width: 767px) { .pt-compose.is-staged > .pt-compose__lead .pt-compose__iddetails { flex: 1 1 100%; margin-left: 0; padding-left: 0; border-left: 0; } }
+/* r13 refine: the carried-data line may shrink (its summary ellipsizes) - at 360 px it widened the page to 388 px */
+.pt-compose.is-staged > .pt-compose__lead .pt-compose__iddetails, .pt-compose.is-staged > .pt-compose__lead .pt-compose__idsummary { min-width: 0; max-width: 100%; }
+
+/* =============================================================================
+   r13 harmony - MCResult anatomy: the outcome line carries its own 20 px tone disc (centred on the first line), the
+   official number is the headline, "Salin nomor" sits on the number's line; facts on equal columns; then the PDF
+   state and ONE next action, separated by hairlines. No floating 44 px circle, no hanging indent.
+   ============================================================================= */
+.pt-result { display: block; padding: 20px var(--card-padding) 18px; }
+.pt-result__body { gap: 0; }
+.pt-result__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px; width: 100%; }
+.pt-result__title { display: flex; flex-direction: column; gap: 6px; min-width: 0; margin: 0; font-size: calc(20 * var(--tu)); line-height: 1.3; }
+.pt-result__status { display: flex; align-items: center; gap: 8px; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); letter-spacing: 0; }
+.pt-result__status--plain { align-items: flex-start; font-size: calc(17 * var(--tu)); line-height: calc(24 * var(--tu)); }
+.pt-result__status--plain .pt-result__icon { margin-top: 2px; }
+.pt-result__icon { display: inline-grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: var(--radius-full); background: var(--color-success-fg); color: var(--color-surface); }
+.pt-result__icon .mc-icon { --icon-n: 12; --icon-stroke-px: 2.6; }
+.pt-result--info .pt-result__icon { background: var(--color-info-fg); }
+.pt-result--warning .pt-result__icon { background: var(--color-warning-fg); }
+.pt-result__number { display: block; color: var(--color-text-primary); font-size: calc(24 * var(--tu)); line-height: calc(30 * var(--tu)); font-weight: var(--weight-bold); letter-spacing: -0.01em; white-space: normal; overflow-wrap: anywhere; }
+.pt-result__tail { color: transparent; }   /* the sentence keeps its full stop for reading and copying; a headline number shows none */
+.pt-result__copy { flex: none; margin-bottom: 4px; }
+.pt-result__text { margin-top: 8px; }
+.pt-result__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 12px 24px; margin: 16px 0 0; padding: 14px 0 0; border-top: 1px solid var(--pt-row-divider); }
+.pt-result__pdf { width: 100%; margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--pt-row-divider); }
+.pt-result .pt-next { margin-top: 14px; padding-top: 14px; }
+@media (max-width: 767px) {
+  .pt-result { padding: 18px var(--m-card-pad, 16px) 16px; }
+  .pt-result__number { font-size: calc(21 * var(--tu)); line-height: calc(28 * var(--tu)); }
+  .pt-result__head { align-items: flex-start; }
+}
+
+/* =============================================================================
+   r13 refine - focused review: Pemeriksaan is about the DOCUMENT, so the paper takes the larger share (60 %,
+   the sheet reaches its 100 % document scale at 1366) and the review becomes a focused rail of three labelled parts:
+   the readiness line, the facts to compare, what the issue does. The bar keeps one action (the total is in the facts).
+   Rincian keeps the editing share (55 %).
+   ============================================================================= */
+@media (min-width: 1280px) { .pt-compose.is-staged[data-stage="periksa"] { --compose-preview: 60%; } }
+@media (min-width: 1600px) { .pt-compose.is-staged[data-stage="periksa"] { --compose-preview: 58%; } }
+.pt-compose.is-staged[data-stage="periksa"] .pt-compose__sum { display: none !important; }
+/* sections inside the working card are bands: no card edges of their own, one hairline between visible bands (the
+   stage hint flows straight into the first band) */
+.pt-compose.is-staged .pt-compose__sections > .pt-compose__section { border-width: 0; }
+.pt-compose.is-staged .pt-compose__sections > :not([hidden]) ~ .pt-compose__section:not([hidden]) { border-top: 1px solid var(--pt-head-rule, var(--pt-row-divider)); }
+.pt-compose__subhead { margin: 0 0 8px; color: var(--color-text-tertiary); font-size: calc(12 * var(--tu)); line-height: calc(16 * var(--tu)); font-weight: var(--weight-semibold); letter-spacing: .02em; }
+.pt-compose__review .pt-compose__facts { padding-top: 0; border-top: 0; }
+.pt-compose.is-staged [data-section="pemeriksaan"] .pt-section__body { gap: 0; }
+.pt-compose.is-staged [data-section="pemeriksaan"] [data-compose-checks] { padding-bottom: 16px; }
+.pt-compose__review:not([hidden]), .pt-compose__reviewinfo { padding: 16px 0; border-top: 1px solid var(--pt-row-divider); }
+.pt-compose__reviewinfo { padding-bottom: 4px; }
+.pt-compose__reviewinfo .pt-compose__info { padding: 0; background: none; border-radius: 0; color: var(--color-text-secondary); }
+.pt-compose__reviewinfo .pt-compose__info [data-compose-cue] { color: var(--color-text-primary); }
+/* the readiness line: the same 20 px tone disc as the result heading, then the folded passed checks */
+.pt-compose.is-staged .pt-checks.is-clear .pt-checks__summary { display: flex; align-items: center; gap: 8px; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); }
+.pt-compose.is-staged .pt-checks.is-clear .pt-checks__summary::before { content: ""; flex: none; width: 20px; height: 20px; border-radius: var(--radius-full);
+  background: var(--color-success-fg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M6 10.4l2.6 2.6L14 7.6' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 20px 20px no-repeat; }
+.pt-compose.is-staged .pt-checks.is-clear + .pt-compose__okdetails { margin: 6px 0 0 28px; }
+
+/* the preview's inspection mode is named, not an unlabeled icon, while composing */
+.pt-compose.is-staged .pt-compose__full { gap: 6px; }
+
+/* =============================================================================
+   r13 refine - long-title phone rows (shared, every MCList with phone.wrap: projects, quotations, cash categories).
+   The record name is the identity: it gets the full row width (up to three lines, full text in the tooltip and for
+   assistive tech); company / client form the second line; the status or attention + date become a third, quiet line
+   instead of a right column that squeezed the name. The number keeps its hanging indent on every line.
+   ============================================================================= */
+@media (max-width: 767px) {
+  .pt-rows--wrap .pt-row:not(.has-lead) { grid-template-columns: minmax(0, 1fr); align-items: start; row-gap: 6px; }
+  .pt-rows--wrap .pt-row.has-chevron:not(.has-lead) { grid-template-columns: minmax(0, 1fr) 18px; }
+  .pt-rows--wrap .pt-row:not(.has-lead) > .pt-row__main { grid-column: 1; grid-row: 1; }
+  .pt-rows--wrap .pt-row:not(.has-lead) > .pt-row__end { grid-column: 1; grid-row: 2; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 4px 12px; text-align: left; white-space: normal; }
+  .pt-rows--wrap .pt-row:not(.has-lead) > .pt-row__end:empty { display: none; }
+  .pt-rows--wrap .pt-row:not(.has-lead) > .pt-row__chev { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  .pt-rows--wrap .pt-row__title { -webkit-line-clamp: 3; line-clamp: 3; }
+  .pt-rows--wrap.pt-rows--numbered .pt-row:not(.has-lead) > .pt-row__end { padding-left: 34px; }
+  .pt-rows--wrap .pt-row__meta { flex-wrap: wrap; row-gap: 2px; white-space: normal; }
+  .pt-rows--wrap .pt-row__meta > span:not(.pt-co) { overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+}
+
+/* r13 refine - numbered timelines: the rail marker carries the chronological position (22 px, tabular) */
+.pt-timeline--numbered > .pt-timeline__item { grid-template-columns: 22px minmax(0, 1fr) auto; }
+.pt-timeline--numbered > .pt-timeline__item[data-no]::before {
+  content: attr(data-no);
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: -1px 0 0;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  color: var(--color-text-secondary);
+  font-size: calc(11 * var(--tu));
+  line-height: 1;
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.pt-timeline--numbered > .pt-timeline__item.is-special[data-no]::before { background: var(--color-warning-bg); box-shadow: inset 0 0 0 1px var(--color-warning-fg); color: var(--color-warning-fg); }
+.pt-timeline--numbered > .pt-timeline__item.is-owner[data-no]::before { background: var(--color-lime-150); box-shadow: none; color: var(--color-text-primary); }
+.pt-timeline--numbered > .pt-timeline__item:not(:last-child)::after { left: 10.5px; top: 33px; }
+
+/* =============================================================================
+   r13 Phase 6 - guided work (Layer A): guidance levels, "Cara kerja" (MCHelp), the walkthrough offer and callout
+   (MCTour), the Panduan panel; plus the Admin home bands (06) and the project flow card (11).
+   ============================================================================= */
+/* Ringkas: the same functions, only canonical guidance - context lines, "Cara kerja", stage hints and the tour offer
+   step aside; warnings, errors, next steps, disabled-with-reason and outcomes NEVER do */
+html[data-guidance="ringkas"] [data-guide-hint],
+html[data-guidance="ringkas"] .mc-help,
+html[data-guidance="ringkas"] .pt-stages__hint { display: none !important; }
+
+.mc-help { margin: 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.mc-help__sum { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; cursor: pointer; list-style: none; color: var(--color-text-secondary); font-weight: var(--weight-medium); }
+.mc-help__sum::-webkit-details-marker { display: none; }
+.mc-help__sum:hover { color: var(--color-text-primary); }
+.mc-help__sum:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: 6px; }
+.mc-help__icon { --icon-n: 16; color: var(--color-text-tertiary); }
+.mc-help__chev { --icon-n: 14; color: var(--color-text-tertiary); transition: transform var(--mc-dur-fast, 150ms) var(--mc-ease-standard, ease); }
+.mc-help[open] .mc-help__chev { transform: rotate(180deg); }
+.mc-help__list { display: grid; gap: 4px; max-width: 72ch; margin: 4px 0 0; padding: 0 0 0 22px; list-style: disc; }
+@media (prefers-reduced-motion: reduce) { .mc-help__chev { transition: none; } }
+
+/* the walkthrough offer: one quiet inline card on the home, dismissible, never a banner or a modal */
+.mc-guide-offer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 14px var(--card-padding);
+  border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg); background: color-mix(in srgb, var(--color-surface-sunken) 55%, var(--color-surface)); }
+.mc-guide-offer__text { min-width: 0; max-width: 70ch; }
+.mc-guide-offer__title { margin: 0; color: var(--color-text-primary); font-size: var(--text-body-size); line-height: var(--text-body-lh); font-weight: var(--weight-semibold); }
+.mc-guide-offer__body { margin: 2px 0 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.mc-guide-offer__actions { display: flex; align-items: center; gap: 16px; flex: none; }
+
+/* the callout: non-modal, anchored to a REAL control, a ring on the target, no scrim */
+.mc-tour { position: fixed; z-index: calc(var(--z-skip, 120) - 1); width: 360px; padding: 16px 18px 14px; border-radius: var(--radius-lg); background: var(--color-surface);
+  box-shadow: 0 8px 28px rgba(20, 24, 16, .16), 0 0 0 1px var(--color-border-subtle); }
+.mc-tour__count { margin: 0 0 4px; color: var(--color-text-tertiary); font-size: calc(12 * var(--tu)); line-height: calc(16 * var(--tu)); font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; }
+.mc-tour__title { margin: 0; color: var(--color-text-primary); font-size: calc(15 * var(--tu)); line-height: calc(21 * var(--tu)); font-weight: var(--weight-semibold); }
+.mc-tour__title:focus { outline: none; }
+.mc-tour__body { margin: 6px 0 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: calc(19 * var(--tu)); }
+.mc-tour__actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.mc-tour__nav { display: flex; gap: 8px; }
+.mc-tour__skip { font-size: var(--text-label-size); }
+.mc-tour-target { position: relative; z-index: 2; border-radius: var(--radius-lg); box-shadow: 0 0 0 3px var(--color-surface), 0 0 0 5px var(--color-accent-olive) !important; transition: box-shadow var(--mc-dur-moderate, 200ms) var(--mc-ease-standard, ease); }
+@media (prefers-reduced-motion: reduce) { .mc-tour-target { transition: none; } }
+/* phones: a bottom sheet ABOVE the bottom navigation and the action bar, never over the target itself */
+.mc-tour.mc-tour--sheet { left: 12px !important; right: 12px; top: auto !important; bottom: calc(var(--m-bottom-nav-h, 60px) + var(--safe-bottom, 0px) + 12px); width: auto !important; }
+.pt-has-actionbar ~ .mc-tour.mc-tour--sheet, body:has(.pt-compose__bar:not([hidden])) .mc-tour.mc-tour--sheet { bottom: calc(var(--pt-action-h, 72px) + var(--safe-bottom, 0px) + 12px); }
+
+/* the Panduan panel (account menu): level choice + restart */
+.mc-guidepanel { display: grid; gap: 18px; text-align: left; }
+.mc-guidepanel__set { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
+.mc-guidepanel__legend { margin: 0 0 4px; padding: 0; color: var(--color-text-primary); font-size: var(--text-body-size); font-weight: var(--weight-semibold); }
+.mc-guidepanel__opt { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; }
+.mc-guidepanel__opt:has(input:checked) { border-color: var(--color-primary); background: var(--color-lime-50, #f7faea); }
+.mc-guidepanel__opt input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--color-primary); }
+.mc-guidepanel__opt strong { display: block; font-weight: var(--weight-semibold); }
+.mc-guidepanel__text { display: block; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.mc-guidepanel__tour .mc-btn { margin-top: 8px; }
+
+/* 06 Admin home: offer + Cara kerja + "Lanjutkan pekerjaan" above the queue; "Baru selesai" after it */
+.atq-guide { display: grid; gap: var(--pt-gap); margin-bottom: var(--pt-gap); }
+.atq-guide:empty { display: none; }
+.atq-resume__verb { color: var(--color-text-primary); font-size: var(--text-label-size); font-weight: var(--weight-semibold); }
+.atq-done { margin-top: var(--pt-gap); }
+.atq-done:empty { display: none; }
+.atq-done__list { padding: 4px var(--card-padding) 12px; }
+.atq-done__link { color: inherit; text-decoration: none; }
+.atq-done__link:hover { text-decoration: underline; }
+@media (max-width: 767px) { .mc-guide-offer__actions { width: 100%; justify-content: space-between; } }
+
+/* 11 project flow: the derived stage strip + ONE next step (+ "Cara kerja") */
+.prj-flowwrap { margin-bottom: var(--pt-gap); }
+.prj-flow .pt-section__body { display: grid; gap: 4px; padding-top: 6px; }
+.prj-flow__steps { margin: 2px 0 6px; }
+.prj-flow .pt-next { margin-top: 6px; }
+.prj-flow .mc-help { margin-top: 6px; }
+.pt-system__ref { margin: 4px 0 0; color: var(--color-text-tertiary); font-size: var(--text-label-size); font-variant-numeric: tabular-nums; }
+
+/* r13 Phase 7 - "Tanggal transaksi" line (PT-25): compact, in "Saat diterbitkan"; the backdating mark is a quiet chip */
+.pt-bdate { margin: 0 0 8px; }
+.pt-bdate__line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-bdate__label { color: var(--color-text-secondary); }
+.pt-bdate__value { color: var(--color-text-primary); font-weight: var(--weight-medium); }
+.pt-bdate__mark { padding: 1px 8px; border-radius: var(--radius-full); background: var(--color-warning-bg); color: var(--color-warning-fg); font-size: calc(12 * var(--tu)); font-weight: var(--weight-semibold); }
+.pt-bdate__mark[hidden] { display: none; }
+.pt-bdate__edit { font-size: var(--text-label-size); }
+.pt-bdate__field { max-width: 240px; margin-top: 8px; }
+.pt-bdate__field[hidden] { display: none; }
+/* r13 Phase 10 (a11y): the "Baru selesai" record links are 44 px touch targets on phones */
+@media (max-width: 767px) { .atq-done__link { display: inline-flex; align-items: center; min-height: 44px; } }
+
+/* r13 remediation - PT-25 note under a form date field / the task-screen "Tanggal transaksi" control (MCBizDate) */
+.pt-bdate__note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 6px 0 0; color: var(--color-text-secondary); font-size: var(--text-label-size); line-height: var(--text-label-lh); }
+.pt-bdate__note[hidden] { display: none; }
+.pt-bdate__note.is-error { color: var(--color-danger-fg); font-weight: var(--weight-medium); }
+.pt-bdate__effect { color: var(--color-text-secondary); }
+.pt-bdate--task { margin: 0 0 var(--pt-gap); padding: 10px var(--card-padding); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+@media (max-width: 767px) { .pt-bdate--task { padding: 10px var(--m-card-pad, 16px); } }

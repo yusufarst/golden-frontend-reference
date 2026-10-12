@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-page="{{TITLE}}">{{TITLE}} · MultipleCorp</title>
+<meta name="description" content="{{DESCRIPTION}}">
+<link rel="icon" type="image/svg+xml" href="../assets/img/brand/multiplecorp-mark.svg" data-brand-favicon>
+<script src="../assets/js/project-config.js"></script>
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<link rel="stylesheet" href="../assets/css/patterns.css">
+{{MODULE_CSS}}<link rel="stylesheet" href="../assets/css/motion.css">
+</head>
+<body data-page="{{ROUTE}}" data-route="{{ROUTE}}" data-nav-section="{{SECTION}}" data-nav-parent="{{PARENT}}">
+<script src="../assets/js/icons.js"></script>
+
+<a class="shell-skip" href="#main">Langsung ke konten utama</a>
+
+<!-- mc:shell-start (tools/shell_sync.py keeps the navigation fallback in step with project-config.js) -->
+<div class="shell" data-shell data-sidebar="expanded">
+
+  <div class="shell-sidebar" id="shell-sidebar">
+    <div class="shell-brand">
+      <a class="shell-brand__home" href="02-owner-dashboard.html" aria-label="MultipleCorp, ke Beranda" data-brand-label="{name}, ke Beranda" data-brand data-shell-link>
+        <svg class="mc-logo-mark shell-brand__mark" aria-hidden="true" data-brand-mark><use href="#i-logo-mark"></use></svg>
+        <span class="shell-brand__name" aria-hidden="true" data-brand-name>MultipleCorp</span>
+      </a>
+      <button class="shell-brand__toggle" type="button" aria-controls="shell-sidebar" aria-expanded="true" aria-label="Ciutkan sidebar" data-shell-toggle>
+        <svg class="mc-icon mc-icon--20" aria-hidden="true"><use href="#i-panel-left"></use></svg>
+      </button>
+    </div>
+
+    <button class="shell-railmenu" type="button" aria-label="Tampilkan navigasi lengkap" aria-haspopup="dialog" aria-controls="mc-navdrawer" aria-expanded="false" data-nav-open>
+      <svg class="mc-icon mc-icon--22" aria-hidden="true"><use href="#i-menu"></use></svg>
+    </button>
+
+    <nav class="shell-nav" aria-label="Navigasi utama" data-shell-nav>
+      <!-- r12: tools/shell_sync.py (new page) writes the 2-level fallback here from project-config.js
+           (navigation.sidebar): sections (<hr class="shell-nav__divider">, <p class="shell-nav__group">),
+           <ul class="shell-nav__list" role="list"> of level-1 rows: a leaf <a class="shell-nav__link"
+           data-nav-key> (icon + label) or a group <li class="shell-nav__item--group"> = a header <a
+           class="shell-nav__link shell-nav__toggle" data-nav-group href="<landing>"> (icon + label +
+           chevron; the shell script turns it into the disclosure <button aria-expanded aria-controls>)
+           + <ul class="shell-nav__sub"> of <a class="shell-nav__sublink"> (no icon). Every child list
+           is present (no JS); the page's group is .is-open with its entry marked. -->
+    </nav>
+
+    <div class="shell-account" data-account>
+      <button class="shell-account__trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Akun: Dimas, Owner" data-account-trigger>
+        <span class="mc-avatar shell-account__avatar" aria-hidden="true" data-account-initials>D</span>
+        <span class="shell-account__text" aria-hidden="true"><span class="shell-account__name" data-account-name>Dimas</span><span class="shell-account__role" data-account-role>Owner</span></span>
+        <svg class="mc-icon shell-account__chev" aria-hidden="true"><use href="#i-chevrons-up-down"></use></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="shell-main">
+    <header class="mc-appbar" data-appbar>
+      <button class="mc-appbar__btn mc-appbar__menu" type="button" aria-label="Buka menu" aria-haspopup="dialog" aria-controls="mc-navdrawer" aria-expanded="false" data-nav-open>
+        <svg class="mc-icon mc-icon--22" aria-hidden="true"><use href="#i-menu"></use></svg>
+      </button>
+      <a class="mc-appbar__brand" href="02-owner-dashboard.html" aria-label="MultipleCorp, ke Beranda" data-brand-label="{name}, ke Beranda" data-brand data-shell-link>
+        <svg class="mc-logo-mark mc-appbar__mark" aria-hidden="true" data-brand-mark><use href="#i-logo-mark"></use></svg>
+        <span class="mc-appbar__name" aria-hidden="true" data-brand-name>MultipleCorp</span>
+      </a>
+      <div class="mc-appbar__actions">
+        <button class="mc-appbar__btn" type="button" aria-label="Cari proyek, pembelian, invoice, atau kode" aria-keyshortcuts="Control+K Meta+K" data-appbar-search>
+          <svg class="mc-icon mc-icon--22" aria-hidden="true"><use href="#i-search"></use></svg>
+        </button>
+      </div>
+    </header>
+
+    <header class="shell-topbar">
+      <form class="shell-search" role="search" action="#" data-shell-search>
+        <label class="mc-input mc-input--header shell-search__field">
+          <svg class="mc-icon mc-input__icon shell-search__icon" aria-hidden="true"><use href="#i-search"></use></svg>
+          <input class="mc-input__control shell-search__input" type="search" name="q" placeholder="Cari proyek, pembelian, invoice, atau kode…" aria-label="Cari proyek, pembelian, invoice, atau kode" aria-keyshortcuts="Control+K Meta+K" autocomplete="off" spellcheck="false">
+          <kbd class="mc-kbd mc-kbd--sans shell-search__kbd" aria-hidden="true">Ctrl K</kbd>
+        </label>
+      </form>
+    </header>
+
+    <main id="main" class="mc-content" data-region="content" tabindex="-1">
+<!-- mc:shell-content-start -->
+
+      <header class="mc-page-head">
+        <nav class="mc-crumbs" aria-label="Breadcrumb" data-crumbs></nav>
+        <div class="pt-head__row">
+          <div class="pt-head__text">
+            <h1 class="mc-page-head__title" data-page-title>{{TITLE}}</h1>
+            <p class="mc-page-head__subtitle">{{DESCRIPTION}}</p>
+          </div>
+          <div class="pt-head__actions" data-page-actions></div>
+        </div>
+      </header>
+
+      <div class="pt-page" data-page-body>
+        <!-- page content: static sections and/or [data-mount] hosts filled by the module script -->
+      </div>
+
+<!-- mc:shell-content-end -->
+    </main>
+  </div>
+
+  <nav class="mc-bottom-nav" aria-label="Navigasi utama">
+    <ul class="mc-bottom-nav__list" role="list">
+    </ul>
+  </nav>
+
+</div>
+<!-- mc:shell-end -->
+
+<script src="../assets/js/router.js" defer></script>
+<script src="../assets/js/fixtures/multiplecorp-data.js" defer></script>
+<script src="../assets/js/patterns.js" defer></script>
+<script src="../assets/js/docs.js" defer></script>
+<script src="../assets/js/guide.js" defer></script>
+<script src="../assets/js/composer.js" defer></script>
+<script src="../assets/js/modules/domain.js" defer></script>
+{{MODULE_JS}}<script src="../assets/js/interactions.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Golden Frontend Reference v1.0.0
+# Keep every file byte-identical to the frozen baseline, which is verified by SHA-256
+# (release/golden-frontend-v1.0/SHA256SUMS-scope.txt). Most frozen files use LF line endings and two use
+# CRLF (docs/NAVIGATION_ARCHITECTURE.md, serve.cmd). Git must not convert line endings on check-in or
+# checkout, on any operating system (Git for Windows converts them by default: core.autocrlf=true).
+* -text

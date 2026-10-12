@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-page="Pesanan">Pesanan · Toko Contoh</title>
+<!-- Golden Frontend Reference v1 - independent consumer demo (portability smoke test).
+     Uses ONLY the shared Golden files below + its own generic config/data (demo-config.js, demo.js).
+     No MULTIPLECORP fixture (assets/js/fixtures/*), no domain.js, no business module (assets/js/modules/*). -->
+<script src="demo-config.js"></script>
+<script src="../../assets/js/project-config.js"></script>
+<link rel="stylesheet" href="../../assets/css/tokens.css">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<link rel="stylesheet" href="../../assets/css/patterns.css">
+<link rel="stylesheet" href="../../assets/css/motion.css">
+<style>
+  /* demo-only layout glue (everything else comes from the Golden CSS) */
+  .demo-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--pt-gap); align-items: start; }
+  @media (max-width: 1023px) { .demo-grid { grid-template-columns: minmax(0, 1fr); } }
+  .demo-form { display: grid; gap: 14px; padding: 4px var(--card-padding) var(--card-padding); }
+  .demo-form__actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .demo-flow { margin: 0 0 var(--pt-gap); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); }
+</style>
+</head>
+<body data-page="demo.home" data-route="demo.home">
+<script src="../../assets/js/icons.js"></script>
+<a class="shell-skip" href="#main">Langsung ke konten utama</a>
+<div class="shell" data-shell data-sidebar="expanded">
+  <div class="shell-sidebar" id="shell-sidebar">
+    <div class="shell-brand">
+      <a class="shell-brand__home" href="index.html" aria-label="Toko Contoh, ke Beranda" data-brand-label="{name}, ke Beranda" data-brand data-shell-link>
+        <svg class="mc-logo-mark shell-brand__mark" aria-hidden="true" data-brand-mark><use href="#i-box"></use></svg>
+        <span class="shell-brand__name" aria-hidden="true" data-brand-name>Toko Contoh</span>
+      </a>
+      <button class="shell-brand__toggle" type="button" aria-controls="shell-sidebar" aria-expanded="true" aria-label="Ciutkan sidebar" data-shell-toggle>
+        <svg class="mc-icon mc-icon--20" aria-hidden="true"><use href="#i-panel-left"></use></svg>
+      </button>
+    </div>
+    <nav class="shell-nav" aria-label="Navigasi utama" data-shell-nav></nav>
+    <div class="shell-account" data-account>
+      <button class="shell-account__trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Akun: Rina, Pemilik" data-account-trigger>
+        <span class="mc-avatar shell-account__avatar" aria-hidden="true" data-account-initials>R</span>
+        <span class="shell-account__text" aria-hidden="true"><span class="shell-account__name" data-account-name>Rina</span><span class="shell-account__role" data-account-role>Pemilik</span></span>
+        <svg class="mc-icon shell-account__chev" aria-hidden="true"><use href="#i-chevrons-up-down"></use></svg>
+      </button>
+    </div>
+  </div>
+  <div class="shell-main">
+    <header class="mc-appbar" data-appbar>
+      <button class="mc-appbar__btn mc-appbar__menu" type="button" aria-label="Buka menu" aria-haspopup="dialog" aria-controls="mc-navdrawer" aria-expanded="false" data-nav-open>
+        <svg class="mc-icon mc-icon--22" aria-hidden="true"><use href="#i-menu"></use></svg>
+      </button>
+      <a class="mc-appbar__brand" href="index.html" aria-label="Toko Contoh, ke Beranda" data-brand-label="{name}, ke Beranda" data-brand data-shell-link>
+        <svg class="mc-logo-mark mc-appbar__mark" aria-hidden="true" data-brand-mark><use href="#i-box"></use></svg>
+        <span class="mc-appbar__name" aria-hidden="true" data-brand-name>Toko Contoh</span>
+      </a>
+    </header>
+    <main id="main" class="mc-content" data-region="content" tabindex="-1">
+      <div class="pt-page" data-page-body>
+        <div class="pt-head"><div class="pt-head__text"><h1 class="mc-page-head__title">Pesanan</h1>
+          <p class="mc-page-head__subtitle">Contoh konsumen Golden Frontend Reference v1 dengan data generik.</p></div></div>
+
+        <div class="demo-flow" data-mount="flow"></div>
+        <div class="demo-grid">
+          <section class="mc-card pt-section" aria-labelledby="demo-list-t">
+            <div class="pt-section__head"><div class="pt-section__titles"><h2 class="pt-section__title" id="demo-list-t">Daftar pesanan</h2>
+              <p class="pt-section__sub">Bernomor dan berhalaman (10 per halaman).</p></div></div>
+            <div data-mount="list"></div>
+          </section>
+          <section class="mc-card pt-section" aria-labelledby="demo-form-t">
+            <div class="pt-section__head"><div class="pt-section__titles"><h2 class="pt-section__title" id="demo-form-t">Pelanggan baru</h2>
+              <p class="pt-section__sub">Validasi, konfirmasi, lalu hasil.</p></div></div>
+            <div data-mount="result" hidden></div>
+            <form class="demo-form" novalidate data-demo-form>
+              <div data-mount="checks"></div>
+              <div class="mc-field"><label class="mc-field__label" for="demo-name">Nama pelanggan<span class="mc-field__required" aria-hidden="true">*</span></label>
+                <span class="mc-input"><input class="mc-input__control" id="demo-name" name="name" autocomplete="off" required aria-required="true"></span></div>
+              <div class="mc-field"><label class="mc-field__label" for="demo-email">Email</label>
+                <span class="mc-input"><input class="mc-input__control" id="demo-email" name="email" type="email" autocomplete="off"></span></div>
+              <div class="mc-field"><label class="mc-field__label" for="demo-date">Tanggal daftar</label>
+                <span class="mc-input"><input class="mc-input__control" id="demo-date" name="date" type="date" data-demo-date></span>
+                <p class="pt-bdate__note" id="demo-date-note" role="status" hidden></p></div>
+              <div class="demo-form__actions">
+                <button class="mc-btn mc-btn--outline mc-btn--md" type="reset">Kosongkan</button>
+                <button class="mc-btn mc-btn--primary mc-btn--md" type="submit">Simpan Pelanggan</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- the shell fills the phone bottom bar from navigation.bottom (the container is part of the page shell) -->
+  <nav class="mc-bottom-nav" aria-label="Navigasi utama">
+    <ul class="mc-bottom-nav__list" role="list"></ul>
+  </nav>
+</div>
+<script src="../../assets/js/patterns.js" defer></script>
+<script src="../../assets/js/guide.js" defer></script>
+<script src="../../assets/js/interactions.js" defer></script>
+<script src="demo.js" defer></script>
+</body>
+</html>

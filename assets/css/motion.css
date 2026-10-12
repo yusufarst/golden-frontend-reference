@@ -1,0 +1,759 @@
+/* =============================================================================
+   MULTIPLECORP motion layer, v1 (label f-system)
+   Keyframes + utilities built ONLY from the motion tokens in tokens.css.
+   Source: analysis/motion-analysis.md section 4 (proposals). Every recipe is element
+   level: no camera, zoom, pan or whole-page scale (motion analysis 4 intro, 5.1-5.5).
+   Only opacity, transform and clip-path animate; blur is text-level and <= 3 px.
+
+   Stagger: give each item --i (0, 1, 2 ...) inline or from JS; the parent picks the
+   interval with .mc-stagger-cards / -rows / -tight. Steps cap at
+   --mc-stagger-max-steps (8), so later items share step 8.
+
+   Page motion sections (appended at the END of this file by c-merge, after section 7, in
+   page order): Login (01), Owner Dashboard (02), Create Purchase (03), Motion Study (04).
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. Keyframes
+   --------------------------------------------------------------------------- */
+@keyframes mc-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mc-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Item reveal: fade + 4 px rise (V2 rows/labels). */
+@keyframes mc-fade-rise {
+  from { opacity: 0; transform: translateY(var(--mc-item-rise)); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Page title: fade + 6 px rise. */
+@keyframes mc-title-rise {
+  from { opacity: 0; transform: translateY(var(--mc-title-rise)); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Content inside a container: fade + blur 3 -> 0 + rise 4 (V2 item reveal with blur). */
+@keyframes mc-blur-in {
+  from { opacity: 0; filter: blur(var(--mc-item-blur)); transform: translateY(var(--mc-item-rise)); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+
+/* Container transform half (opacity runs separately on mc-fade-in, 240 vs 320 ms). */
+@keyframes mc-lift-in {
+  from { transform: translateY(var(--mc-enter-rise)) scale(var(--mc-enter-scale)); }
+  to { transform: none; }
+}
+
+/* Combined container entrance (single-animation form). */
+@keyframes mc-scale-in {
+  from { opacity: 0; transform: translateY(var(--mc-enter-rise)) scale(var(--mc-enter-scale)); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Dialog / auth card exit: fade + scale to 0.98, no translate. */
+@keyframes mc-scale-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: scale(var(--mc-exit-scale)); }
+}
+
+/* Success check / chip pop-in, no overshoot. */
+@keyframes mc-pop-in {
+  from { opacity: 0; transform: scale(var(--mc-pop-scale)); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Command palette: top-anchored height reveal from the input row (V2 easeOutQuart). */
+@keyframes mc-palette-open {
+  from { clip-path: inset(0 0 calc(100% - var(--mc-palette-start-h, 56px)) 0 round var(--radius-xl)); }
+  to { clip-path: inset(0 0 0 0 round var(--radius-xl)); }
+}
+
+/* In-layout side panel: clip reveal from the centre, 3 % -> 100 % width (V2 detail panel). */
+@keyframes mc-panel-reveal {
+  from { clip-path: inset(0 calc(50% - var(--mc-panel-start) / 2) round var(--radius-lg)); }
+  to { clip-path: inset(0 0 round var(--radius-lg)); }
+}
+
+/* Overlay drawer from the right edge (narrow screens; new, not in the references). */
+@keyframes mc-drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+@keyframes mc-drawer-out {
+  from { transform: none; }
+  to { transform: translateX(100%); }
+}
+
+/* Toast: enter fade + 8 px rise; exit opacity only. */
+@keyframes mc-toast-in {
+  from { opacity: 0; transform: translateY(var(--mc-enter-rise)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mc-toast-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Inline validation message: drops in 4 px from above. No shake anywhere. */
+@keyframes mc-validation-in {
+  from { opacity: 0; transform: translateY(var(--mc-validation-rise)); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Auth step (credentials <-> verification), one 600 ms clock on --mc-ease-standard.
+   Content exits 0-45 %, nothing is visible 45-55 % (DOM swap at 50 %), enters 55-100 %.
+   The caption moves 2 x the content offset (V1 2x copy parallax). The visual image
+   behind the moving clip does not move (V1 screen-fixed gradient). */
+@keyframes mc-auth-content-out {
+  0% { opacity: 1; transform: none; }
+  45%, 100% { opacity: 0; transform: translateX(calc(var(--mc-auth-shift) * -1 * var(--mc-auth-dir, 1))); }
+}
+@keyframes mc-auth-content-in {
+  0%, 55% { opacity: 0; transform: translateX(calc(var(--mc-auth-shift) * var(--mc-auth-dir, 1))); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes mc-auth-caption-out {
+  0% { opacity: 1; transform: none; }
+  35%, 100% { opacity: 0; transform: translateX(calc(var(--mc-auth-parallax) * -1 * var(--mc-auth-dir, 1))); }
+}
+@keyframes mc-auth-caption-in {
+  0%, 65% { opacity: 0; transform: translateX(calc(var(--mc-auth-parallax) * var(--mc-auth-dir, 1))); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Live status (r10): a soft ring leaves the dot every 2 s (scale 1 -> 2.6, opacity .45 -> 0).
+   Transform + opacity only; static under reduced motion (the "Aktif" text carries the meaning). */
+@keyframes mc-live-breathe {
+  0% { transform: scale(1); opacity: .45; }
+  70%, 100% { transform: scale(2.6); opacity: 0; }
+}
+.mc-pill--live .mc-pill__dot::after { animation: mc-live-breathe 2s cubic-bezier(.25, 1, .5, 1) infinite; }
+@media (prefers-reduced-motion: reduce) { .mc-pill--live .mc-pill__dot::after { animation: none; } }
+.ms-reduced .mc-pill--live .mc-pill__dot::after { animation: none; }
+
+/* Indeterminate spinner (kept under reduced motion, slower). */
+@keyframes mc-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Selection ring: 6 px transparent spread -> 2 px solid (V2 ~8 -> 2 CSS px, 180 ms). */
+@keyframes mc-ring-in {
+  from { box-shadow: 0 0 0 6px transparent; }
+  to { box-shadow: 0 0 0 2px var(--mc-ring-color, var(--color-accent-olive)); }
+}
+
+/* -----------------------------------------------------------------------------
+   2. Stagger plumbing
+   --------------------------------------------------------------------------- */
+.mc-stagger-cards { --mc-stagger: var(--mc-stagger-card); }
+.mc-stagger-rows { --mc-stagger: var(--mc-stagger-row); }
+.mc-stagger-tight { --mc-stagger: var(--mc-stagger-tight); }
+
+/* Delay of a staggered element = base delay + min(i, 8) x interval. */
+.mc-enter,
+.mc-enter-item,
+.mc-enter-content,
+.mc-enter-title,
+.mc-enter-fade,
+.mc-pop {
+  --mc-delay: calc(var(--mc-delay-base, 0ms) + min(var(--i, 0), var(--mc-stagger-max-steps)) * var(--mc-stagger, 0ms));
+}
+
+/* -----------------------------------------------------------------------------
+   3. Entrance utilities (page recipe, motion analysis 4.4)
+   --------------------------------------------------------------------------- */
+/* Container (card): opacity 240 ms + scale 0.97 / rise 8 px over 320 ms, enter curve. */
+.mc-enter {
+  animation:
+    mc-fade-in var(--mc-dur-base) var(--mc-ease-enter) var(--mc-delay) both,
+    mc-lift-in var(--mc-dur-moderate) var(--mc-ease-enter) var(--mc-delay) both;
+}
+
+/* Row / label: fade + 4 px rise, 240 ms. */
+.mc-enter-item {
+  animation: mc-fade-rise var(--mc-dur-base) var(--mc-ease-enter) var(--mc-delay) both;
+}
+
+/* Content inside a container: starts --mc-content-offset after it, with 3 px blur. */
+.mc-enter-content {
+  animation: mc-blur-in var(--mc-dur-base) var(--mc-ease-enter) calc(var(--mc-delay) + var(--mc-content-offset)) both;
+}
+
+/* Page title: fade + 6 px rise, 240 ms. */
+.mc-enter-title {
+  animation: mc-title-rise var(--mc-dur-base) var(--mc-ease-enter) var(--mc-delay) both;
+}
+
+/* Plain fade (no transform). */
+.mc-enter-fade {
+  animation: mc-fade-in var(--mc-dur-base) var(--mc-ease-enter) var(--mc-delay) both;
+}
+
+/* Pop-in (success check, chips): 0.8 -> 1, no overshoot. */
+.mc-pop {
+  animation: mc-pop-in var(--mc-dur-fast) var(--mc-ease-enter) var(--mc-delay) both;
+}
+
+/* Page exit: opacity only (optional blur is not used: whole-page blur is banned, 5.16). */
+.mc-exit {
+  animation: mc-fade-out var(--mc-dur-base) var(--mc-ease-exit) both;
+}
+
+/* -----------------------------------------------------------------------------
+   4. Overlay utilities
+   --------------------------------------------------------------------------- */
+.mc-scrim {
+  background: var(--mc-scrim);
+}
+.mc-scrim.is-entering { animation: mc-fade-in var(--mc-dur-base) var(--mc-ease-linear) both; }
+.mc-scrim.is-leaving { animation: mc-fade-out var(--mc-dur-base) var(--mc-ease-linear) both; }
+
+/* Modal dialog: opacity in 80 ms + scale 0.97 / rise 8 over 320 ms; close 160 ms to 0.98. */
+.mc-dialog.is-entering {
+  animation:
+    mc-fade-in var(--mc-dur-instant) var(--mc-ease-enter) both,
+    mc-lift-in var(--mc-dur-moderate) var(--mc-ease-enter) both;
+}
+.mc-dialog.is-leaving { animation: mc-scale-out var(--mc-dur-fast) var(--mc-ease-exit) both; }
+
+/* Command palette: opacity 80 ms + height reveal 400 ms (reveal curve). */
+.mc-palette.is-entering {
+  animation:
+    mc-fade-in var(--mc-dur-instant) var(--mc-ease-enter) both,
+    mc-palette-open var(--mc-dur-slow) var(--mc-ease-reveal) both;
+}
+.mc-palette.is-leaving { animation: mc-fade-out var(--mc-dur-fast) var(--mc-ease-exit) both; }
+
+/* In-layout detail panel: opacity 80 ms + centre clip reveal 400 ms. */
+.mc-panel.is-entering {
+  animation:
+    mc-fade-in var(--mc-dur-instant) var(--mc-ease-enter) both,
+    mc-panel-reveal var(--mc-dur-slow) var(--mc-ease-reveal) both;
+}
+
+/* Overlay drawer: 320 ms enter, 240 ms exit. */
+.mc-drawer.is-entering { animation: mc-drawer-in var(--mc-dur-moderate) var(--mc-ease-enter) both; }
+.mc-drawer.is-leaving { animation: mc-drawer-out var(--mc-dur-base) var(--mc-ease-exit) both; }
+
+/* Toast: opacity 160 ms + rise over 240 ms; exit opacity 240 ms. */
+.mc-toast.is-entering {
+  animation:
+    mc-fade-in var(--mc-dur-fast) var(--mc-ease-enter) both,
+    mc-toast-in var(--mc-dur-base) var(--mc-ease-enter) both;
+}
+.mc-toast.is-leaving { animation: mc-toast-out var(--mc-dur-base) var(--mc-ease-exit) both; }
+
+/* Inline validation message. */
+.mc-validation-in { animation: mc-validation-in var(--mc-dur-fast) var(--mc-ease-enter) both; }
+
+/* Selection ring on a source item. */
+.mc-ring-in { animation: mc-ring-in var(--mc-dur-fast) var(--mc-ease-enter) both; }
+
+/* -----------------------------------------------------------------------------
+   5. Persistent-element transitions
+   --------------------------------------------------------------------------- */
+/* Nav indicator: translateY to the target, fixed 400 ms whatever the distance, no stretch. */
+.mc-nav-indicator {
+  transition: transform var(--mc-dur-slow) var(--mc-ease-standard);
+  will-change: transform;
+}
+
+/* Colour-only state changes: 80 ms in (on hover) / 160 ms out. */
+.mc-transition-colors {
+  transition:
+    background-color var(--mc-dur-fast) var(--mc-ease-exit),
+    border-color var(--mc-dur-fast) var(--mc-ease-exit),
+    color var(--mc-dur-fast) var(--mc-ease-exit);
+}
+.mc-transition-colors:hover { transition-duration: var(--mc-dur-instant); }
+
+/* Data refresh: 160 ms crossfade of changed cells only (no stagger). */
+.mc-crossfade { animation: mc-fade-in var(--mc-dur-fast) var(--mc-ease-linear) both; }
+
+/* Row removal: fade 200 ms, then collapse over 320 ms (grid-rows trick). */
+.mc-collapse {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--mc-dur-moderate) var(--mc-ease-standard) 100ms,
+    opacity 200ms var(--mc-ease-exit);
+}
+.mc-collapse > * { overflow: hidden; min-height: 0; }
+.mc-collapse.is-collapsed { grid-template-rows: 0fr; opacity: 0; }
+
+/* Spinner. */
+.mc-spin { animation: mc-spin var(--mc-dur-spin) linear infinite; }
+
+/* -----------------------------------------------------------------------------
+   6. Auth step classes (login page; one clock = --mc-dur-auth-step, standard curve)
+   Set --mc-auth-dir: -1 on the container for the mirrored "back" step.
+   --------------------------------------------------------------------------- */
+.mc-auth-out {
+  animation: mc-auth-content-out var(--mc-dur-auth-step) var(--mc-ease-standard) both;
+}
+.mc-auth-in {
+  animation: mc-auth-content-in var(--mc-dur-auth-step) var(--mc-ease-standard) both;
+}
+.mc-auth-caption-out {
+  animation: mc-auth-caption-out var(--mc-dur-auth-step) var(--mc-ease-standard) both;
+}
+.mc-auth-caption-in {
+  animation: mc-auth-caption-in var(--mc-dur-auth-step) var(--mc-ease-standard) both;
+}
+.mc-auth-exit {                                     /* S2 -> S3: auth card leaves */
+  animation: mc-scale-out var(--mc-dur-base) var(--mc-ease-exit) both;
+}
+
+/* -----------------------------------------------------------------------------
+   7. Reduced motion (motion analysis 4.5): translate, scale, clip, height and blur
+   are removed; everything becomes a 150 ms linear opacity crossfade; staggers are 0;
+   rolls and springs show their final value; spinners stay, slower. Interruptible and
+   never blocking input in both modes.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mc-enter-scale: 1;
+    --mc-exit-scale: 1;
+    --mc-pop-scale: 1;
+    --mc-enter-rise: 0px;
+    --mc-title-rise: 0px;
+    --mc-item-rise: 0px;
+    --mc-item-blur: 0px;
+    --mc-validation-rise: 0px;
+    --mc-press-scale: 1;
+    --mc-auth-shift: 0px;
+    --mc-auth-parallax: 0px;
+    --mc-stagger-tight: 0ms;
+    --mc-stagger-row: 0ms;
+    --mc-stagger-card: 0ms;
+    --mc-content-offset: 0ms;
+    --mc-dur-spin: 1600ms;
+  }
+
+  .mc-enter,
+  .mc-enter-item,
+  .mc-enter-content,
+  .mc-enter-title,
+  .mc-enter-fade,
+  .mc-pop,
+  .mc-crossfade,
+  .mc-validation-in,
+  .mc-toast.is-entering,
+  .mc-dialog.is-entering,
+  .mc-palette.is-entering,
+  .mc-panel.is-entering,
+  .mc-scrim.is-entering {
+    animation: mc-fade-in var(--mc-dur-reduced) linear both !important;
+  }
+
+  .mc-exit,
+  .mc-toast.is-leaving,
+  .mc-dialog.is-leaving,
+  .mc-palette.is-leaving,
+  .mc-scrim.is-leaving,
+  .mc-auth-exit {
+    animation: mc-fade-out var(--mc-dur-reduced) linear both !important;
+  }
+
+  /* Auth step: a 150 ms crossfade of the form block; no parallax, no shape change. */
+  .mc-auth-out,
+  .mc-auth-caption-out {
+    animation: mc-fade-out var(--mc-dur-reduced) linear both !important;
+  }
+  .mc-auth-in,
+  .mc-auth-caption-in {
+    animation: mc-fade-in var(--mc-dur-reduced) linear both !important;
+  }
+
+  /* Drawers appear in place. */
+  .mc-drawer.is-entering { animation: mc-fade-in var(--mc-dur-reduced) linear both !important; }
+  .mc-drawer.is-leaving { animation: mc-fade-out var(--mc-dur-reduced) linear both !important; }
+
+  /* Nav indicator jumps; collapses happen without height animation. */
+  .mc-nav-indicator { transition: none !important; }
+  .mc-collapse { transition: opacity var(--mc-dur-reduced) linear !important; }
+
+  /* Press: colour change only (scale token is 1); no transform transitions anywhere. */
+  .mc-btn { transition-property: background-color, border-color, color, box-shadow !important; }
+  .mc-ring-in { animation: mc-fade-in var(--mc-dur-reduced) linear both !important; }
+
+  html { scroll-behavior: auto !important; }
+}
+
+
+/* ===== Page: Login (01) ===== */
+/* =============================================================================
+   MULTIPLECORP login motion (01-login.html), label b-login. Namespace: login-.
+   The step change itself is driven by assets/js/interactions.js (Login section) from ONE progress
+   variable (exposed as --login-p time progress and --login-e eased progress on
+   .login-card while it runs). This file holds the state rules around it.
+   Tokens: --mc-dur-auth-step 600 ms, --mc-ease-standard (.42,0,.58,1),
+   --mc-dur-reduced 150 ms, --mc-pop-scale .8 (motion analysis 4.3 / owner decision 5).
+   ============================================================================= */
+
+/* While a step change runs the slot is positioned by transform from card x 0, and the
+   visual clip is written inline per frame (path with the sheet's inner corners). */
+.login-card.is-animating .login-slot { left: 0; }
+.login-card.is-animating .login-step { pointer-events: none; }
+
+/* Ghost used for the reduced-motion / narrow-layout fade-through (x-login): its content
+   fades out over the first half, then the emptied ghost fades out (150 ms linear in total;
+   driven by login.js). */
+.login-card--ghost {
+  pointer-events: none;
+  box-shadow: none !important;
+  z-index: 3;
+}
+
+/* Submit feedback: press scale comes from .mc-btn:active (0.97, 80 ms in / 160 ms out);
+   the spinner fades in at a fixed button width. */
+.login-cta__spinner { transition: opacity var(--mc-dur-fast) var(--mc-ease-enter); }
+.login-cta__label,
+.login-cta__trail { transition: opacity var(--mc-dur-instant) var(--mc-ease-exit); }
+
+/* Authenticated: success check scales 0.8 -> 1 over 200 ms, no overshoot (enter curve),
+   after the panel lands; it waits invisible while the step slides in. */
+.login-done__disc.is-waiting { opacity: 0; transform: scale(var(--mc-pop-scale)); }
+.login-done__disc.is-entering {
+  animation: mc-pop-in 200ms var(--mc-ease-enter) both;
+}
+
+/* Inline messages reuse the system validation entrance (fade + 4 px drop, 160 ms). */
+.login-error.mc-validation-in,
+.login-forgot-help.mc-validation-in { animation: mc-validation-in var(--mc-dur-fast) var(--mc-ease-enter) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .login-done__disc.is-entering { animation: mc-fade-in var(--mc-dur-reduced) linear both; }
+  .login-error.mc-validation-in,
+  .login-forgot-help.mc-validation-in { animation: mc-fade-in var(--mc-dur-reduced) linear both; }
+  .login-cta__spinner .mc-icon { animation-duration: 1600ms; }
+  .login-handoff__bar .mc-progress__bar { transition: none; }
+}
+
+
+/* ===== Page: Owner Dashboard (02) ===== */
+/* =============================================================================
+   MULTIPLECORP owner dashboard motion (02-owner-dashboard.html), label b-dash.
+   Grammar: REF-V2 page build, compressed (motion analysis 3.6-3.7, 4.4). Element level
+   only: no camera, zoom, pan or page-wide scale; the shell never animates.
+
+   1. Cards: every card carries data-enter="card"; shell.js indexes them in document
+      order (hero 0, KPI 1-4, Tindakan 5, Umur 6, bottom row 7-8, capped at 8 steps) and
+      adds .mc-enter: opacity 240 ms + rise 8 px / scale .975 -> 1 over 320 ms, enter curve,
+      40 ms stagger on this page (system 60 ms). Last card starts at 320 ms.
+   2. Contents follow their card by 80 ms (hero 40 ms): fade + 4 px rise, 240 ms, plus a
+      3 px blur on text labels only (never on figures); list rows stagger 40 ms (max 8 steps).
+   3. Charts (one subtle reveal each, <= 600 ms, after the card has landed):
+      sparkline left-to-right clip 560 ms; ageing bar left-to-right clip 480 ms;
+      donut ring scale .94 -> 1 + 24 deg turn 520 ms; progress fills clip 480 ms.
+   All delays derive from the card's inherited --mc-delay; fill-mode "backwards", so
+   nothing is left behind after the build and a page without JS shows the final state.
+   Reduced motion: contents and charts do not animate; cards keep the system 150 ms fade.
+   ============================================================================= */
+
+[data-page="dashboard"] [data-region="content"] {
+  --mc-enter-scale: .975;               /* task spec: 0.975 -> 1 (system token .97) */
+}
+@media (prefers-reduced-motion: no-preference) {   /* reduced motion keeps the system zeros */
+  [data-page="dashboard"] [data-region="content"] {
+    --mc-stagger: 40ms;                 /* x-dashboard: 10 cards in ~320 ms instead of 480 (build-note option) */
+    --mc-content-offset: 80ms;          /* contents land while the card is still fading: no empty white boxes */
+  }
+}
+
+/* Declared on each card (where shell.js / motion.css define --mc-delay), so children
+   inherit the card's own delay; declared on the region it would resolve to 0 for all. */
+.dash-hero,
+.dash-kpi,
+.dash-card {
+  --dash-content-delay: calc(var(--mc-delay, 0ms) + var(--mc-content-offset));
+  --dash-chart-delay: calc(var(--mc-delay, 0ms) + 200ms);
+}
+.dash-hero { --dash-content-delay: calc(var(--mc-delay, 0ms) + 40ms); }   /* greeting arrives with its landscape */
+
+@keyframes dash-content-in {
+  from { opacity: 0; transform: translateY(var(--mc-item-rise)); filter: blur(var(--mc-item-blur)); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes dash-fade-rise {
+  from { opacity: 0; transform: translateY(var(--mc-item-rise)); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes dash-clip-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes dash-ring-in {
+  from { opacity: 0; transform: rotate(-24deg) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Shared .mc-enter fills "both", so after the build every card keeps a filling identity
+   transform (own layer, stacking context, grayscale text AA). Page-local workaround until
+   motion.css switches to "backwards" (reported as a shared issue): */
+.dash-hero.mc-enter,
+.dash-kpi.mc-enter,
+.dash-card.mc-enter { animation-fill-mode: backwards; }
+
+/* 2. Contents ------------------------------------------------------------- */
+.dash-hero__text,
+.dash-kpi .mc-kpi__label,
+.dash-kpi .mc-kpi__trend,
+.dash-card__head {
+  animation: dash-content-in var(--mc-dur-base) var(--mc-ease-enter) var(--dash-content-delay) backwards;
+}
+
+/* numeric figures: fade + rise only (a 3 px blur smears the digits mid-flight) */
+.dash-kpi .mc-kpi__value,
+.dash-aging__summary,
+.dash-donut__center,
+.dash-kpi .mc-kpi__disc,
+.dash-kpi .mc-kpi__more,
+.dash-legend__row,
+.dash-value__item {
+  animation: dash-fade-rise var(--mc-dur-base) var(--mc-ease-enter) var(--dash-content-delay) backwards;
+}
+
+/* list rows: 40 ms stagger, top to bottom, 8 steps max, one step after the card header */
+.dash-action,
+.dash-feed > li,
+.dash-project {
+  --dash-row-i: 0;
+  animation: dash-fade-rise var(--mc-dur-base) var(--mc-ease-enter)
+    calc(var(--dash-content-delay) + min(var(--dash-row-i) + 1, var(--mc-stagger-max-steps)) * var(--mc-stagger-row)) backwards;
+}   /* +1: the card header leads its first row by one step */
+.dash-action:nth-child(2), .dash-feed > li:nth-child(2), .dash-project:nth-child(2) { --dash-row-i: 1; }
+.dash-action:nth-child(3), .dash-feed > li:nth-child(3), .dash-project:nth-child(3) { --dash-row-i: 2; }
+.dash-action:nth-child(4), .dash-feed > li:nth-child(4), .dash-project:nth-child(4) { --dash-row-i: 3; }
+.dash-action:nth-child(5), .dash-feed > li:nth-child(5), .dash-project:nth-child(5) { --dash-row-i: 4; }
+.dash-legend__row:nth-child(2), .dash-value__item:nth-child(2) { animation-delay: calc(var(--dash-content-delay) + var(--mc-stagger-tight)); }
+.dash-legend__row:nth-child(3), .dash-value__item:nth-child(3) { animation-delay: calc(var(--dash-content-delay) + 2 * var(--mc-stagger-tight)); }
+.dash-legend__row:nth-child(4), .dash-value__item:nth-child(4) { animation-delay: calc(var(--dash-content-delay) + 3 * var(--mc-stagger-tight)); }
+.dash-legend__row:nth-child(5) { animation-delay: calc(var(--dash-content-delay) + 4 * var(--mc-stagger-tight)); }
+
+/* 3. Charts --------------------------------------------------------------- */
+.dash-spark {
+  animation: dash-clip-in 560ms var(--mc-ease-enter) var(--dash-chart-delay) backwards;
+}
+
+.dash-agebar {
+  animation: dash-clip-in 480ms var(--mc-ease-standard) var(--dash-chart-delay) backwards;
+}
+
+.dash-donut__chart {
+  transform-origin: 50% 50%;
+  animation: dash-ring-in 520ms var(--mc-ease-enter) var(--dash-chart-delay) backwards;
+}
+
+.dash-project__bar .mc-progress__bar {
+  animation: dash-clip-in 480ms var(--mc-ease-enter)
+    calc(var(--dash-chart-delay) + min(var(--dash-row-i, 0), var(--mc-stagger-max-steps)) * var(--mc-stagger-row)) backwards;
+}
+
+/* Reduced motion ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .dash-hero__text,
+  .dash-kpi .mc-kpi__label,
+  .dash-kpi .mc-kpi__value,
+  .dash-kpi .mc-kpi__trend,
+  .dash-card__head,
+  .dash-aging__summary,
+  .dash-donut__center,
+  .dash-kpi .mc-kpi__disc,
+  .dash-kpi .mc-kpi__more,
+  .dash-legend__row,
+  .dash-value__item,
+  .dash-action,
+  .dash-feed > li,
+  .dash-project,
+  .dash-spark,
+  .dash-agebar,
+  .dash-donut__chart,
+  .dash-project__bar .mc-progress__bar {
+    animation: none !important;
+  }
+  .dash-action::before,
+  .dash-feed__item,
+  .dash-project::before,
+  .dash-kpi { transition-duration: 0ms !important; }
+  .dash-hero.mc-enter,
+  .dash-kpi.mc-enter,
+  .dash-card.mc-enter { animation-fill-mode: backwards !important; }   /* same workaround for the system 150 ms fade */
+}
+
+
+/* ===== Page: Create Purchase (03) ===== */
+/* =============================================================================
+   MULTIPLECORP Create Purchase motion (03-create-purchase.html), label b-pur.
+   Namespace: pur-. Recipes from motion analysis 4.4 (REF-V2 measured, compressed):
+   - card entrance: shell.js indexes [data-enter="card"] -> .mc-enter (opacity 240 +
+     rise 8 / scale .97 over 320, 60 ms stagger), offset by --mc-delay-base on .pur-form;
+   - row add: fade + 4 px rise, 240 ms, enter curve (V2 item reveal);
+   - row removal: fade 220 ms (exit curve), then collapse by one row over 380 ms
+     (standard curve) starting 110 ms into the fade (V2 "Done" removal 220 + 380);
+   - feedback: press .97 (mc-btn), status line enters with opacity 160 + rise 8 / 240,
+     changed figures cross-fade 160 ms (data refresh, no stagger);
+   - reduced motion: opacity only, 150 ms linear.
+   ============================================================================= */
+
+/* Row add ----------------------------------------------------------------- */
+@keyframes pur-row-in {
+  from { opacity: 0; transform: translateY(var(--mc-item-rise)); }
+  to { opacity: 1; transform: none; }
+}
+.pur-row.is-entering > .pur-td {
+  animation: pur-row-in var(--mc-dur-base) var(--mc-ease-enter) both;
+}
+
+/* Row removal: the row fades, then every cell collapses (padding, height, border) while
+   its content is clipped. The wrapper animation is driven from purchase.js so it can
+   start from the measured height; these rules hold the visual state. */
+.pur-row.is-leaving { pointer-events: none; }
+.pur-row.is-leaving > .pur-td {
+  overflow: hidden;
+  animation: pur-row-fade 220ms var(--mc-ease-exit) both;
+}
+@keyframes pur-row-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Changed figures: 160 ms cross-fade of the changed cell only (no stagger). */
+@keyframes pur-figure-swap {
+  from { opacity: .35; }
+  to { opacity: 1; }
+}
+.pur-swap { animation: pur-figure-swap var(--mc-dur-fast) linear both; }
+
+/* Status line in the footer: opacity 160 + rise 8 over 240 (toast-in recipe), exit 240. */
+.pur-footer__status.is-entering {
+  animation:
+    mc-fade-in var(--mc-dur-fast) var(--mc-ease-enter) both,
+    mc-toast-in var(--mc-dur-base) var(--mc-ease-enter) both;
+}
+.pur-footer__status.is-leaving { animation: mc-fade-out var(--mc-dur-base) var(--mc-ease-exit) both; }
+
+/* Draft (r9: a menu item of the split action): the chevron segment shows the spinner while saving
+   (components.css, .mc-split__toggle[aria-busy]). */
+
+/* Submit button: label dims while busy, the check pops when done. */
+.pur-footer__submit .mc-btn__label { transition: opacity var(--mc-dur-instant) var(--mc-ease-exit); }
+.pur-footer__submit[aria-busy="true"] .mc-btn__label { opacity: .72; }
+.pur-footer__submit.is-done .pur-footer__icon--check { animation: mc-pop-in var(--mc-dur-fast) var(--mc-ease-enter) both; }
+
+/* Menu: the 03 source menu is the shared MCMenu since r11 (its motion lives with MCMenu). */
+
+/* Drop zone feedback: border / tint 160 ms (colour-only, defined in purchase.css). */
+
+/* Invalid control: the border change runs 160 ms (from .mc-input), no shake. */
+
+@media (prefers-reduced-motion: reduce) {
+  .pur-row.is-entering > .pur-td,
+  .pur-row.is-leaving > .pur-td,
+  .pur-swap,
+  .pur-footer__status.is-entering,
+  .pur-footer__submit.is-done .pur-footer__icon--check {
+    animation: mc-fade-in var(--mc-dur-reduced) linear both;
+  }
+  .pur-row.is-leaving > .pur-td,
+  .pur-footer__status.is-leaving { animation: mc-fade-out var(--mc-dur-reduced) linear both; }
+  .pur-footer { transition: none; }
+}
+
+
+/* ===== Page: Motion Study (04) ===== */
+/* =============================================================================
+   MULTIPLECORP motion study: motion rules (label b-motion). Namespace ms-.
+   The pattern timelines run on WAAPI from assets/js/interactions.js (Motion Study
+   section), which reads
+   every duration and easing from tokens.css at run time (--mc-dur-*, --mc-ease-*,
+   --mc-stagger-*, --mc-enter-*, --mc-scrim, --mc-backdrop-blur). This file only holds
+   the CSS-driven pieces: spinners, colour transitions of persistent states and the
+   reduced-motion fallbacks for anything that is not a WAAPI timeline.
+   Merge target: motion.css section 5 (persistent elements) / section 7 (reduced).
+   ============================================================================= */
+
+/* Loader inside a fixed-width button (kept under reduced motion, slower). */
+.ms-spin {
+  animation: mc-spin var(--mc-dur-spin) linear infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Save button: background / border / label colour follow data-state with the
+   button's own 160 ms colour transition (.mc-btn). Layers crossfade in JS (160 ms). */
+.ms-save { transition-property: background-color, border-color, color, box-shadow, transform; }
+
+/* Selection ring on list rows: the box-shadow spread animates in JS only (6 px transparent ->
+   2 px olive, 160 ms enter, V2-U34); a CSS transition here would override the WAAPI ring. */
+.ms-prow { transition: background-color var(--mc-dur-fast) var(--mc-ease-exit); }
+
+/* Palette rows: highlight follows the keyboard and the pointer (80 ms in / 160 ms out). */
+.ms-palette__item { transition: background-color var(--mc-dur-fast) var(--mc-ease-exit); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-spin { animation-duration: 1600ms; }
+  .ms-prow { transition: background-color var(--mc-dur-reduced) linear; }
+}
+
+
+/* =============================================================================
+   r2: upload state machine, bottom sheets, mobile shell
+   Durations / easings from tokens.css only (--mc-dur-hover 140, --mc-dur-state 200,
+   --mc-dur-check 360, --mc-dur-sheet 320). No bounce, no overshoot.
+   ============================================================================= */
+
+/* Upload: the file panel enters on every state change that brings it in */
+@keyframes mc-upload-panel-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.mc-upload__file.is-entering { animation: mc-upload-panel-in var(--mc-dur-state) var(--mc-ease-enter) both; }
+
+/* Upload success: ring stroke draws (360 ms), the mark follows on the same curve, the glyph
+   fades/scales in from 0.85 (no overshoot); the wash settles via the panel transition. */
+@keyframes mc-check-ring {
+  from { stroke-dashoffset: 76; fill-opacity: 0; }
+  60%  { fill-opacity: 0; }
+  to   { stroke-dashoffset: 0; fill-opacity: 1; }
+}
+@keyframes mc-check-mark {
+  from { stroke-dashoffset: 18; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes mc-check-pop {
+  from { opacity: 0; transform: scale(.85); }
+  to   { opacity: 1; transform: none; }
+}
+.mc-upload__check-ring { stroke-dasharray: 76; }
+.mc-upload__check-mark { stroke-dasharray: 18; }
+.mc-upload[data-state="success"].is-fresh .mc-upload__check { animation: mc-check-pop var(--mc-dur-state) var(--mc-ease-enter) both; }
+.mc-upload[data-state="success"].is-fresh .mc-upload__check-ring { animation: mc-check-ring var(--mc-dur-check) var(--mc-ease-enter) both; }
+.mc-upload[data-state="success"].is-fresh .mc-upload__check-mark { animation: mc-check-mark calc(var(--mc-dur-check) * .6) var(--mc-ease-enter) calc(var(--mc-dur-check) * .5) both; }
+
+/* Error: a short horizontal settle (6 px, no shake loop) */
+@keyframes mc-upload-error-in {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+.mc-upload[data-state="error"].is-fresh .mc-upload__alert { animation: mc-upload-error-in var(--mc-dur-state) var(--mc-ease-enter) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-upload__file.is-entering { animation: mc-fade-in var(--mc-dur-reduced) linear both; }
+  .mc-upload[data-state="success"].is-fresh .mc-upload__check,
+  .mc-upload[data-state="error"].is-fresh .mc-upload__alert { animation: mc-fade-in var(--mc-dur-reduced) linear both; }
+  .mc-upload[data-state="success"].is-fresh .mc-upload__check-ring,
+  .mc-upload[data-state="success"].is-fresh .mc-upload__check-mark { animation: none; stroke-dashoffset: 0; fill-opacity: 1; }
+  .mc-upload__spinner { animation-duration: 1600ms; }
+  .mc-upload__file,
+  .mc-upload .pur-drop__zone,
+  .mc-upload__bar > span { transition-duration: var(--mc-dur-reduced); }
+}

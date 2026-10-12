@@ -1,0 +1,459 @@
+{
+  "name": "MULTIPLECORP Golden Reference — reusable app template",
+  "version": "1.0.0",
+  "status": "FROZEN — OWNER APPROVED (Golden Frontend Reference v1.0, 2026-10-12)",
+  "hierarchicalNavigation": true,
+  "readFirst": [
+    "docs/GOLDEN_FRONTEND_V1_START_HERE.md",
+    "docs/AGENT_START_HERE.md",
+    "docs/TEMPLATE_ADOPTION_GUIDE.md",
+    "docs/PORTABILITY_CONTRACT.md",
+    "docs/NAVIGATION_ARCHITECTURE.md",
+    "docs/UX_PRINCIPLES.md",
+    "docs/GUIDED_WORKFLOW.md",
+    "docs/DOCUMENT_SYSTEM.md",
+    "docs/PERSISTENT_SHELL.md"
+  ],
+  "layers": {
+    "A_golden_design_system": {
+      "rule": "GOLDEN FIXED. Copy as-is into a new project; never fork per screen. Changes go back to the Golden Reference.",
+      "files": [
+        "assets/css/tokens.css",
+        "assets/css/base.css",
+        "assets/css/components.css",
+        "assets/css/patterns.css",
+        "assets/css/motion.css",
+        "assets/fonts/inter/",
+        "assets/js/icons.js",
+        "assets/js/interactions.js",
+        "assets/js/patterns.js",
+        "assets/js/router.js",
+        "assets/js/docs.js",
+        "assets/js/guide.js",
+        "assets/js/composer.js",
+        "template/page-skeleton.html"
+      ],
+      "notes": [
+        "components.css and interactions.js also carry the four reference pages (01-04); their page sections are reference implementations, not dependencies of the module pages.",
+        "Brand colours are the only tokens a project re-tints: --brand-* through project-config.js tokens.",
+        "r13: router.js (persistent shell over HTTP, docs/PERSISTENT_SHELL.md) is loaded FIRST of the deferred scripts on every shell page (tools/shell_sync.py inserts it); on file:// it stays off. Serve the lab with serve.cmd / tools/serve.py.",
+        "r13 phase 5a: docs.js (MCDoc: one paper renderer + MCDoc.totals), guide.js (MCProgress, MCChecks, MCResult, MCNext, MCPrereq) and composer.js (MCComposer, the live document composer) are SHARED runtime, loaded right after patterns.js on every shell page (tools/shell_sync.py inserts them); their CSS lives in patterns.css sections 12, 12b, 12c."
+      ]
+    },
+    "B_project_configuration": {
+      "rule": "PROJECT CONFIGURABLE. One file per project.",
+      "files": [
+        "assets/js/project-config.js"
+      ],
+      "example": "template/project-config.example.js",
+      "keys": [
+        "brand",
+        "locale",
+        "time",
+        "user",
+        "roleFixtures",
+        "navigation",
+        "mobileDisclosure",
+        "account",
+        "dateFilter",
+        "features",
+        "tokens",
+        "routes (ROUTES)",
+        "modules (MODULES)"
+      ]
+    },
+    "C_project_fixture_and_implementation": {
+      "rule": "BUSINESS FIXTURE + PROJECT IMPLEMENTATION RESPONSIBILITY. Replaced entirely by a new project.",
+      "files": [
+        "assets/js/fixtures/multiplecorp-data.js",
+        "assets/js/modules/*.js",
+        "assets/css/modules/*.css",
+        "pages/*.html (content inside [data-page-body]; the shell block comes from the skeleton)"
+      ],
+      "mustNotLeakInto": [
+        "assets/js/patterns.js",
+        "assets/css/patterns.css",
+        "assets/js/interactions.js (shared sections)",
+        "assets/js/icons.js"
+      ]
+    },
+    "external_backend": {
+      "rule": "EXTERNAL / BACKEND RESPONSIBILITY. Never simulated as real in the template.",
+      "items": [
+        "authentication and sessions",
+        "authorization (the prototype only hides)",
+        "idempotent command handling (one command id per submission)",
+        "numbering sequences",
+        "PDF rendition",
+        "file storage and virus scanning",
+        "audit log persistence",
+        "time source (server time)",
+        "exports"
+      ]
+    }
+  },
+  "tools": {
+    "tools/shell_sync.py": "scaffold a page for a route (--new) and keep the static navigation fallback (r12: the two-level tree for the page's data-route) in step with project-config.js; --check reports stale pages",
+    "tools/export_config.js": "resolved project configuration as JSON (routes, modules, account; r12: tree, bottomItems, navIndex, current, home per project + role)",
+    "tools/route_check.py": "registry <-> files <-> links integrity; every navigation entry of both tree levels, bottom item and account entry resolves to a page; a rendered group has >= 2 children; no '#', javascript:, data-placeholder",
+    "tools/nav_audit.py": "r12 navigation audit per project + role (Owner, Admin, nusantara, longname): route without module/parent, child to a missing route, dead destination, duplicate entries, hidden route shown, role-invalid entry, active-ancestry mismatch, depth > 2, bottom bar; --pages = page-duplication heuristic (page links that repeat a nav entry; audit signal)",
+    "tools/clickability.py": "no-dead-control rule by behaviour (every control does something observable)",
+    "tools/page_check.py": "per-page errors, overflow, links and screenshots at desktop / tablet / phone",
+    "tools/a11y_check.py": "headings, accessible names, labels, alt, contrast and 44 px phone targets on every route",
+    "tools/make_app_map.py": "review/app-map.html generated from the route registry, with the hierarchy view MODULE -> NAV DESTINATIONS -> DETAIL / TASK routes (per-role marks)",
+    "tools/behaviour_test.py": "the regression suite",
+    "tools/make_owner_review.py": "review/owner-review.html: prioritised inspection plan with evidence links",
+    "tools/capture_evidence_r10.py": "renders the evidence/final/r10 captures listed in the owner review",
+    "tools/route_samples.json": "sample query parameters for detail routes (tools, app map, tests)",
+    "tools/ux_density.py": "action density per route: buttons / menus / links above the fold, primary count, competing loud controls (desktop + phone, --role admin); flags button soup",
+    "tools/capture_evidence_r11.py": "evidence/final/r11: before/after captures of the R11 key screens (desktop 1366, 1920, 1024, phone 390) for review/owner-review.html"
+  },
+  "review": [
+    "review/app-map.html",
+    "review/owner-review.html",
+    "review/index.html",
+    "review/frame.html"
+  ],
+  "fixtureFree": true,
+  "designSystemVersion": "golden-ds 1.1.0 (r11)",
+  "approval": {
+    "status": "FREEZE CANDIDATE — PENDING OWNER VISUAL APPROVAL",
+    "ownerApproved": false
+  },
+  "viewportClasses": {
+    "phone": {
+      "range": "< 768 px",
+      "tested": [
+        "360x780",
+        "390x844",
+        "430x932",
+        "440x956"
+      ],
+      "shell": "app bar (menu, brand, search) + bottom navigation (max 5) + full navigation drawer; account inside the drawer"
+    },
+    "tablet": {
+      "range": "768-1024 px",
+      "tested": [
+        "768x1024",
+        "1024x768"
+      ],
+      "shell": "icon rail + full navigation drawer (a rail group icon opens the drawer at its group); account avatar at the rail bottom"
+    },
+    "desktop": {
+      "range": ">= 1025 px",
+      "tested": [
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1536x864",
+        "1920x1080"
+      ],
+      "shell": "two-level sidebar (collapsible to the icon rail: toggle or Ctrl/Cmd+B) + calm top bar (search / palette); account at the sidebar bottom",
+      "density": "runtime units --du/--dt/--tu/--iu at browser zoom 100 %; content max 1680 px"
+    }
+  },
+  "tokenCategories": [
+    "colour (surface, border, text, semantic tones, brand slots --brand-*)",
+    "typography (Inter; sizes with --tu)",
+    "space",
+    "radius 4/6/8/10/12",
+    "shadow",
+    "control heights",
+    "density units",
+    "motion (durations, curves, stagger)",
+    "z-index"
+  ],
+  "componentRegistry": {
+    "primitives (components.css)": [
+      "mc-card",
+      "mc-btn",
+      "mc-split",
+      "mc-field",
+      "mc-input",
+      "mc-select",
+      "mc-pill",
+      "mc-delta",
+      "mc-attention",
+      "mc-disc",
+      "mc-kbd",
+      "mc-progress",
+      "mc-stepper",
+      "mc-disclosure",
+      "mc-page-head",
+      "mc-crumbs",
+      "mc-kpi",
+      "mc-daterange",
+      "mc-toast",
+      "mc-modal",
+      "mc-account-menu",
+      "mc-navdrawer",
+      "mc-bottom-nav",
+      "mc-appbar",
+      "shell-nav (r12: group toggle, sublink, rail)",
+      "shell"
+    ],
+    "patterns (patterns.css / patterns.js)": [
+      "pt-page",
+      "pt-head",
+      "pt-section",
+      "pt-toolbar (MCFilter)",
+      "pt-table / pt-rows (MCList)",
+      "pt-co",
+      "pt-state",
+      "pt-tabs (MCTabs, drill-in)",
+      "pt-seg (MCSeg)",
+      "pt-facts",
+      "pt-kv",
+      "pt-timeline",
+      "pt-checklist",
+      "pt-split",
+      "pt-sheet (MCSheet)",
+      "pt-form-grid",
+      "pt-readonly",
+      "pt-actionbar",
+      "pt-doc",
+      "pt-versions",
+      "pt-notice",
+      "pt-metrics",
+      "pt-tiles",
+      "pt-system",
+      "pt-progress",
+      "pt-actions (MCActions: one primary, quiet secondaries, \"Tindakan Lain\" overflow)",
+      "pt-menu (MCMenu: popover on desktop, sheet on phone)",
+      "pt-filterpanel (MCFilter \"Filter (n)\" panel / sheet)",
+      "pt-tabbar / pt-tabmore (MCTabs \"Bagian Lain\")",
+      "pt-subnav (MCPage.subnav)",
+      "pt-signals (MCUI.signals)",
+      "pt-listhead (MCUI.listHead)",
+      "pt-metric-strip"
+    ],
+    "catalog": "docs/COMPONENT_CATALOG.md",
+    "r13 (verified by tools/behaviour_test.py r13 blocks)": [
+      "router.js: MCRouter + MCScope (persistent shell over HTTP; file:// full loads)",
+      "docs.js: MCDoc.paper / mount / totals (one paper, one calculation)",
+      "composer.js: MCComposer (stages, live preview, checks, MSG-39 issue, result, tpl.businessDate)",
+      "guide.js: MCProgress, MCStepper, MCChecks, MCPrereq, MCNext, MCResult, MCGuide, MCHelp, MCResume, MCTour",
+      "patterns.js: MCPager (numbered pages), MCList number default, MCTimeline (chronological numbers), MCMedia, MCPage.guard forbidden state"
+    ]
+  },
+  "pageArchetypes": [
+    "auth",
+    "dashboard",
+    "list",
+    "detail-hub",
+    "detail",
+    "list-detail",
+    "form",
+    "task",
+    "checklist",
+    "document",
+    "report",
+    "review",
+    "settings",
+    "hub",
+    "search",
+    "system"
+  ],
+  "configurableProjectFields": [
+    "brand.name",
+    "brand.short",
+    "brand.company",
+    "brand.logo",
+    "brand.mark",
+    "brand.alt",
+    "brand.favicon",
+    "brand.title",
+    "brand.display",
+    "locale.default",
+    "locale.secondary",
+    "time.zone",
+    "time.bands",
+    "time.greetings",
+    "time.now",
+    "user",
+    "roleFixtures",
+    "navigation.home",
+    "navigation.sidebar (r12: sections -> level-1 leaf or group -> children; roles, hiddenForRoles, capability, params, match)",
+    "navigation.bottom (array, or { default, <role> } per role)",
+    "navigation.items",
+    "navigation.mobileBack",
+    "modules (enabled/label/icon/route/roles/capability/bottomNav)",
+    "routes",
+    "mobileDisclosure",
+    "account.menu",
+    "account.logout",
+    "account.adminLabel",
+    "dateFilter.presets",
+    "dateFilter.default",
+    "dateFilter.min",
+    "dateFilter.max",
+    "features.search",
+    "features.shortcuts",
+    "features.authVisual",
+    "features.dateFilter",
+    "features.bottomNav",
+    "tokens (--brand-* only)",
+    "routes[].capability (r13 Phase 7: command-screen audience)",
+    "help (r13 Phase 6: defaultLevel, levels, tours, screens)"
+  ],
+  "routeModuleContract": {
+    "route": {
+      "id": "dot-separated key",
+      "file": "page in pages/",
+      "title": "{id,en} label, never business data",
+      "module": "navigation section",
+      "group": "app-map group",
+      "archetype": "see pageArchetypes",
+      "parent": "the TRUE hierarchical parent route id (breadcrumbs, the navigation's current walk); r12: null on a navigation destination whose siblings are their own entries",
+      "params": "required query parameters",
+      "defaults": "r12: { param: value } applied when the address omits the param (addresses compare after defaults)",
+      "views": "r12: { param, titles: { value: {id,en} } } views of one route that the navigation may list as entries (h1 + <title> per view)",
+      "roles": "roles allowed; others get the not-found page",
+      "shell": "false for screens without the app shell"
+    },
+    "module": {
+      "key": "nav key",
+      "label": "{id,en}",
+      "icon": "icons.js name",
+      "route": "landing route id",
+      "routeByRole": "optional per-role landing",
+      "enabled": "default true",
+      "roles": "optional",
+      "capability": "optional Admin capability",
+      "bottomNav": "eligible for the phone bottom bar (default true)"
+    },
+    "api": "window.MCRoutes { all, get, href, allowed, current, param, trail, modules, module, view } and window.MCProject { navItem, sidebarGroups, bottomKeys, accountMenu, can, role; r12: navTree, navCurrent, bottomItems, navIndex, navProvides, navCovers, home } (docs/NAVIGATION_ARCHITECTURE.md)"
+  },
+  "interactionPrimitives": [
+    "navigation (r12: one two-level tree for sidebar, rail and drawer; disclosure groups; one aria-current per landmark; bottom nav per role; breadcrumbs = true ancestors)",
+    "command palette (Ctrl/Cmd+K) with registry destinations + record providers",
+    "account menu",
+    "dialogs (MCDialog: decision vs info)",
+    "risk confirmation (MCRisk: LOW / COMMIT / DESTRUCTIVE / CRITICAL) + double-execution guard",
+    "sheets (MCSheet)",
+    "menus / split action",
+    "custom select",
+    "date range",
+    "toasts",
+    "upload state machine",
+    "progressive disclosure (phone)",
+    "tabs + drill-in parts",
+    "list keyset \"Muat Lagi\" (r13: numbered lists page with MCPager instead)",
+    "long-text reveal (MCLongText)",
+    "live status",
+    "demo actions ([data-demo])",
+    "walkthrough (MCTour) + guidance levels (MCGuide)",
+    "route capability guard (MSG-10 forbidden vs not-found)",
+    "business date \"Tanggal transaksi\" (PT-25) on issuing commands"
+  ],
+  "accessibility": [
+    "WCAG 2.2 AA contrast",
+    "visible focus everywhere",
+    "keyboard: menus, listbox, tabs, dialogs, sheets, palette",
+    "focus trap + return on modal layers",
+    "Esc closes overlays (decision dialogs: Esc = cancel)",
+    "live regions for async results",
+    ">= 44 px touch targets on phones",
+    ">= 16 px text inputs on touch devices",
+    "no colour-only status (text always carries meaning)",
+    "tables with captions and th scope",
+    "reduced motion respected"
+  ],
+  "motion": [
+    "token durations 80/160/200/240/320/400 ms and named curves (docs/MOTION_SYSTEM.md)",
+    "motion explains state change, hierarchy, feedback, continuity only",
+    "no animation during normal scrolling",
+    "live status: 2 s soft ring on genuinely live states only",
+    "reduced motion: 150 ms opacity fades, no automatic text movement"
+  ],
+  "goldenFrontendV1": {
+    "identity": "Golden Frontend Reference v1.0",
+    "status": "FROZEN — OWNER APPROVED",
+    "entry": "docs/GOLDEN_FRONTEND_V1_START_HERE.md",
+    "technology": "plain HTML + CSS + JavaScript (ES5, no build step); no npm package, no framework bindings",
+    "requiredRuntime": [
+      "assets/css/tokens.css",
+      "assets/css/base.css",
+      "assets/css/components.css",
+      "assets/css/patterns.css",
+      "assets/css/motion.css",
+      "assets/js/project-config.js",
+      "assets/js/icons.js",
+      "assets/js/patterns.js",
+      "assets/js/guide.js",
+      "assets/js/interactions.js",
+      "template/page-skeleton.html"
+    ],
+    "optionalRuntime": [
+      "assets/js/router.js",
+      "tools/serve.py",
+      "assets/js/docs.js",
+      "assets/js/composer.js"
+    ],
+    "exampleOnly": [
+      "assets/js/modules",
+      "assets/js/fixtures",
+      "assets/css/modules",
+      "pages"
+    ],
+    "classification": {
+      "portableAsIs": [
+        "tokens.css",
+        "base.css",
+        "components.css",
+        "patterns.css",
+        "motion.css",
+        "icons.js"
+      ],
+      "portableWithConfiguration": [
+        "patterns.js (MCList, MCPager, MCUI, MCFilter, MCTabs, MCRisk, MCDateField, MCTimeline, MCBizDate)",
+        "guide.js (MCStepper, MCProgress, MCChecks, MCPrereq, MCNext, MCResult, MCGuide, MCHelp, MCResume, MCTour)",
+        "interactions.js (shell, navigation, dialogs, account menu, palette)",
+        "router.js (persistent shell)"
+      ],
+      "portableWithAdaptation": [
+        "project-config.js (runtime + MULTIPLECORP config in one file: replace ROUTES / MODULES / FIXTURES)",
+        "docs.js + composer.js (templates per project)"
+      ],
+      "multiplecorpExampleOnly": [
+        "modules/*",
+        "fixtures/*",
+        "pages/*",
+        "css/modules/*"
+      ]
+    },
+    "consumerDemo": "examples/consumer-demo/index.html",
+    "smokeTest": "tools/golden_consumer_smoke.py",
+    "configSeams": [
+      "window.MC_PROJECT_PATCH (set before project-config.js; demo / host seam)",
+      "copy of project-config.js with own ROUTES / MODULES / FIXTURES (production adoption)"
+    ],
+    "limitations": [
+      "runtime and MULTIPLECORP configuration share project-config.js",
+      "Golden CSS carries a few example-page blocks (.pur-*, .atq-*, .prj-*)",
+      "component micro-copy defaults are Indonesian",
+      "shell markup is written in each page (template/page-skeleton.html)",
+      "frontend guards are not authorization; backend obligations documented only"
+    ],
+    "applicationQa": "MULTIPLECORP FULL APPLICATION QA — INCOMPLETE / VERIFICATION PENDING (separate status; scratch/r13/R13_FINAL_QA_REPORT.md)",
+    "frozenOn": "2026-10-12",
+    "baseline": "golden-frontend-v1.0",
+    "baselineRecord": "release/golden-frontend-v1.0/FREEZE_RECORD.md",
+    "checksums": [
+      "release/golden-frontend-v1.0/SHA256SUMS-scope.txt",
+      "release/golden-frontend-v1.0/SHA256SUMS-demo-baseline.txt"
+    ],
+    "gitTag": "none (the workspace is not a Git repository; the checksum record is the reproducible baseline)",
+    "approvedScope": "reusable design system, frontend reference, component library, UX patterns, portability documentation, independent consumer demo",
+    "notInScope": "MULTIPLECORP application QA, backend security, production readiness",
+    "changePolicy": "v1.0 is immutable: any change to the frozen scope ships as an explicitly versioned successor (v1.1 / v2.0) with its own record; MULTIPLECORP demo work may continue without modifying v1.0 files",
+    "verification": {
+      "consumerSmoke": "13/13 (tools/golden_consumer_smoke.py, 2026-10-12 03:07, after the last runtime / demo change)",
+      "manifestPaths": "46 checked, 0 missing"
+    },
+    "previousStatus": {
+      "version": "1.0.0-freeze-candidate",
+      "status": "FREEZE CANDIDATE — PENDING OWNER VISUAL APPROVAL"
+    }
+  }
+}

@@ -1,0 +1,325 @@
+/* =============================================================================
+   MULTIPLECORP base layer, v1 (label f-system)
+   Font faces, reset, document defaults, icon base, focus, utilities.
+   Requires tokens.css first. Offline: every url() is relative to this file.
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   1. Inter (self-hosted variable, OFL-1.1; see assets/fonts/inter/LICENSE.txt)
+   font-display: block avoids a fallback flash; the files are local, so the block
+   period is a few milliseconds.
+   --------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url("../fonts/inter/InterVariable.woff2") format("woff2-variations"),
+       url("../fonts/inter/InterVariable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: block;
+  src: url("../fonts/inter/InterVariable-Italic.woff2") format("woff2-variations"),
+       url("../fonts/inter/InterVariable-Italic.woff2") format("woff2");
+}
+
+/* Cap-height-matched local fallback (static analysis 3.2: Segoe UI cap 0.70 vs Inter 0.727
+   -> size-adjust 104 %). Metric overrides reproduce Inter's line box
+   (ascender 0.96875 em, descender 0.2421875 em, divided by the size-adjust). */
+/* f-verify: one face per weight band. A single local("Segoe UI") face declared for 100-900 is
+   the Regular file at every weight, and html sets font-synthesis: none, so 600/700 text would
+   have rendered as 400 whenever Inter failed to load (hierarchy collapse). */
+@font-face {
+  font-family: "Inter Fallback";
+  font-style: normal;
+  font-weight: 100 450;
+  src: local("Segoe UI"), local("SegoeUI");
+  size-adjust: 104%;
+  ascent-override: 93.1%;
+  descent-override: 23.3%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-style: normal;
+  font-weight: 451 650;
+  src: local("Segoe UI Semibold"), local("SegoeUI-Semibold");
+  size-adjust: 104%;
+  ascent-override: 93.1%;
+  descent-override: 23.3%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-style: normal;
+  font-weight: 651 900;
+  src: local("Segoe UI Bold"), local("SegoeUI-Bold");
+  size-adjust: 104%;
+  ascent-override: 93.1%;
+  descent-override: 23.3%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  font-style: italic;
+  font-weight: 100 900;
+  src: local("Segoe UI Italic"), local("SegoeUI-Italic");
+  size-adjust: 104%;
+  ascent-override: 93.1%;
+  descent-override: 23.3%;
+  line-gap-override: 0%;
+}
+
+/* -----------------------------------------------------------------------------
+   2. Modern reset
+   --------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  min-height: 100vh;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul[role="list"],
+ol[role="list"],
+menu {
+  list-style: none;
+  padding: 0;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* -----------------------------------------------------------------------------
+   3. Document defaults
+   --------------------------------------------------------------------------- */
+html {
+  background: var(--color-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  font-weight: var(--weight-regular);
+  /* Text cut at every size: the references measure x/cap 0.75 (opsz 14), not the display cut. */
+  font-optical-sizing: none;
+  font-variation-settings: var(--font-variation-text);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--color-canvas);
+  color: inherit;
+  font: inherit;
+}
+
+/* Native form controls inherit the text cut too. */
+input,
+select,
+textarea,
+button {
+  font-optical-sizing: none;
+  font-variation-settings: var(--font-variation-text);
+}
+
+::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+::selection {
+  background: var(--color-lime-200);
+  color: var(--color-text-primary);
+}
+
+/* Subtle scrollbars (not in the references; kept quiet so they never compete with cards). */
+html,
+.mc-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #d8d8d6 transparent;
+}
+
+/* -----------------------------------------------------------------------------
+   4. Focus: keyboard only, appears instantly (motion analysis 4.4 Feedback; proposal)
+   --------------------------------------------------------------------------- */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* -----------------------------------------------------------------------------
+   5. Icons. <svg class="mc-icon mc-icon--20"><use href="#i-calendar"/></svg>
+   Box sizes; the 24-unit glyph ink is ~0.83 x box. Stroke tokens are in RENDERED px
+   and are converted to 24-unit user space per box size so every size draws the
+   measured weight (20-24 px: 1.75; 16-20 px: 1.5; 12-14 px: 1.25).
+   Box guide (f-verify, ink measured on the references): nav / card-header 24; M3 field 20;
+   M1 KPI disc glyphs 26-27 (ink 20-24 in a 52 disc; a 24 box draws only 18 x 20), use
+   style="--icon-n:27;--icon-stroke-px:2"; M2 feature disc glyphs 26; M1 activity disc 20;
+   attention badge sprout 12; top-bar search 21-22, Pintasan keyboard 22 (ink 19 x 14), month calendar 22.
+   --------------------------------------------------------------------------- */
+.mc-icon {
+  --icon-n: 24;
+  --icon-stroke-px: var(--icon-stroke);
+  display: inline-block;
+  flex-shrink: 0;
+  width: calc(var(--icon-n) * var(--iu, 1px));      /* r6: icon unit (1px; desktop density, tokens.css) */
+  height: calc(var(--icon-n) * var(--iu, 1px));
+  vertical-align: middle;
+  color: inherit;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: calc(var(--icon-stroke-px) * 24 / var(--icon-n));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.mc-icon--12 { --icon-n: 12; --icon-stroke-px: var(--icon-stroke-xs); }
+.mc-icon--14 { --icon-n: 14; --icon-stroke-px: var(--icon-stroke-xs); }
+.mc-icon--16 { --icon-n: 16; --icon-stroke-px: var(--icon-stroke-sm); }
+.mc-icon--18 { --icon-n: 18; --icon-stroke-px: var(--icon-stroke-sm); }
+.mc-icon--20 { --icon-n: 20; --icon-stroke-px: var(--icon-stroke-sm); }
+.mc-icon--22 { --icon-n: 22; --icon-stroke-px: var(--icon-stroke); }
+.mc-icon--24 { --icon-n: 24; --icon-stroke-px: var(--icon-stroke); }
+.mc-icon--26 { --icon-n: 26; --icon-stroke-px: var(--icon-stroke); }   /* M2 field / CTA glyphs (ink 19-22) */
+.mc-icon--28 { --icon-n: 28; --icon-stroke-px: var(--icon-stroke); }
+.mc-icon--32 { --icon-n: 32; --icon-stroke-px: var(--icon-stroke-lg); } /* M3 card-title glyphs (ink up to 21 x 27) */
+
+/* Filled glyphs (logo, status dot, filled check) opt out of the outline defaults. */
+.mc-icon--fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* -----------------------------------------------------------------------------
+   6. Utilities
+   --------------------------------------------------------------------------- */
+.mc-tabular,
+.mc-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-visually-hidden,
+.mc-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.mc-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Text colour utilities (tiers from tokens.css). */
+.mc-text-primary { color: var(--color-text-primary); }
+.mc-text-strong { color: var(--color-text-strong); }
+.mc-text-secondary { color: var(--color-text-secondary); }
+.mc-text-tertiary { color: var(--color-text-tertiary); }
+.mc-text-muted { color: var(--color-text-muted); }
+.mc-text-muted-canvas { color: var(--color-text-muted-canvas); }
+.mc-text-muted-tint { color: var(--color-text-muted-tint); }
